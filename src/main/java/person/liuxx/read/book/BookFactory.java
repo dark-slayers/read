@@ -37,7 +37,7 @@ public final class BookFactory
      * @param path
      * @return
      */
-    public static StorageBook parseLocalBook(Path path, String bookName)
+    public static StorageBook parseDir(Path path, String bookName)
     {
         List<String> titleList = new LinkedList<>();
         List<String> stories = new LinkedList<>();

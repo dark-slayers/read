@@ -56,8 +56,4 @@ public class StorageBook implements Serializable
     {
         this.stories = stories;
     }
-
-    public void save()
-    {
-    }
 }
