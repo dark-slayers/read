@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import person.liuxx.read.book.Chapter;
 import person.liuxx.read.book.StorageBook;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.service.BookService;
@@ -38,5 +40,19 @@ public class BookController
         Optional<StorageBook> bookOption = bookService.read(optional.orElse(null));
         List<String> list = bookOption.map(b -> b.getTitles()).orElse(new ArrayList<>());
         return list;
+    }
+
+    @ApiOperation(value = "获取指定id书籍的索引编号为index章节的信息", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
+    @ApiImplicitParams(
+    { @ApiImplicitParam(name = "id", value = "书籍id", required = true, dataType = "Long"),
+            @ApiImplicitParam(name = "index", value = "章节索引编号", required = true,
+                    dataType = "int") })
+    @RequestMapping(value = "/chapter/{id}/{index}", method = RequestMethod.GET)
+    public Chapter chapter(@PathVariable Long id, @PathVariable int index)
+    {
+        Optional<BookDO> optional = bookService.findUseId(id);
+        Optional<StorageBook> bookOption = bookService.read(optional.orElse(null));
+        Chapter chapter = bookOption.map(b -> b.getChapter(index)).orElse(new Chapter());
+        return chapter;
     }
 }

@@ -13,6 +13,7 @@ import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.StorageBook;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.service.BookService;
+import springfox.documentation.annotations.ApiIgnore;
 
 /**
  * @author 刘湘湘
@@ -20,6 +21,7 @@ import person.liuxx.read.service.BookService;
  *          创建时间：2017年7月27日 下午6:28:24
  * @since 1.0.0
  */
+@ApiIgnore
 @RestController
 public class TestController
 {

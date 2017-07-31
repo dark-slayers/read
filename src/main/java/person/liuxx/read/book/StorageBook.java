@@ -56,4 +56,13 @@ public class StorageBook implements Serializable
     {
         this.stories = stories;
     }
+
+    public Chapter getChapter(int index)
+    {
+        Chapter c = new Chapter();
+        c.setIndex(index);
+        c.setTitle(getTitles().get(index));
+        c.setContent(getStories().get(index));
+        return c;
+    }
 }

@@ -27,7 +27,7 @@ public class SwaggerConfig
     {
         return new Docket(DocumentationType.SWAGGER_2).apiInfo(apiInfo())
                 .select()
-                .apis(RequestHandlerSelectors.basePackage("person.liuxx.read"))
+                .apis(RequestHandlerSelectors.basePackage("person.liuxx.read.controller"))
                 .paths(PathSelectors.any())
                 .build();
     }
