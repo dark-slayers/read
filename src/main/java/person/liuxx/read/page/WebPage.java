@@ -26,70 +26,70 @@ import person.liuxx.util.log.LogUtil;
  */
 public class WebPage
 {
-	private Logger log = LogManager.getLogger();
-	private final Charset charset;
-	private final String source;
+    private Logger log = LogManager.getLogger();
+    private final Charset charset;
+    private final String source;
 
-	public WebPage(Path path)
-	{
-		String html = "";
-		Charset c = StandardCharsets.UTF_8;
-		try
-		{
-			InputStream in = Files.newInputStream(path);
-			html = IOUtils.toString(in);
-			c = getCharset(html);
-			log.info("设置编码为 : {}", c);
-			in = Files.newInputStream(path);
-			html = IOUtils.toString(in, c.toString());
-		} catch (IOException e)
-		{
-			log.error(LogUtil.errorInfo(e));
-		}
-		source = html;
-		charset = c;
-	}
+    public WebPage(Path path)
+    {
+        String html = "";
+        Charset c = StandardCharsets.UTF_8;
+        try
+        {
+            InputStream in = Files.newInputStream(path);
+            html = IOUtils.toString(in);
+            c = getCharset(html);
+            log.info("设置编码为 : {}", c);
+            in = Files.newInputStream(path);
+            html = IOUtils.toString(in, c.toString());
+        } catch (IOException e)
+        {
+            log.error(LogUtil.errorInfo(e));
+        }
+        source = html;
+        charset = c;
+    }
 
-	private Charset getCharset(String html)
-	{
-		Charset result = StandardCharsets.UTF_8;
-		Pattern p = Pattern.compile("<meta.*?charset=.*?>");
-		Matcher m = p.matcher(html.toLowerCase());
-		while (m.find())
-		{
-			String meta = m.group();
-			Pattern p2 = Pattern.compile("charset=.*?>");
-			Matcher m2 = p2.matcher(meta);
-			while (m2.find())
-			{
-				String searchCharset = m2.group().replaceAll("charset=", "");
-				if (searchCharset.startsWith("\"") || searchCharset.startsWith("'"))
-				{
-					searchCharset = searchCharset.substring(1);
-				}
-				String endString = Arrays.stream(searchCharset.split("")).filter(c ->
-				{
-					String[] array =
-					{ "'", "\"", " ", "/", ">", };
-					Set<String> set = new HashSet<>(Arrays.asList(array));
-					return set.contains(c);
-				}).findFirst().get();
-				int endIndex = searchCharset.indexOf(endString);
-				searchCharset = searchCharset.substring(0, endIndex);
-				log.info("从页面中获取的编码格式：{}", searchCharset);
-				result = Charset.forName(searchCharset);
-			}
-		}
-		return result;
-	}
+    private Charset getCharset(String html)
+    {
+        Charset result = StandardCharsets.UTF_8;
+        Pattern p = Pattern.compile("<meta.*?charset=.*?>");
+        Matcher m = p.matcher(html.toLowerCase());
+        while (m.find())
+        {
+            String meta = m.group();
+            Pattern p2 = Pattern.compile("charset=.*?>");
+            Matcher m2 = p2.matcher(meta);
+            while (m2.find())
+            {
+                String searchCharset = m2.group().replaceAll("charset=", "");
+                if (searchCharset.startsWith("\"") || searchCharset.startsWith("'"))
+                {
+                    searchCharset = searchCharset.substring(1);
+                }
+                String endString = Arrays.stream(searchCharset.split("")).filter(c ->
+                {
+                    String[] array =
+                    { "'", "\"", " ", "/", ">", };
+                    Set<String> set = new HashSet<>(Arrays.asList(array));
+                    return set.contains(c);
+                }).findFirst().get();
+                int endIndex = searchCharset.indexOf(endString);
+                searchCharset = searchCharset.substring(0, endIndex);
+                log.info("从页面中获取的编码格式：{}", searchCharset);
+                result = Charset.forName(searchCharset);
+            }
+        }
+        return result;
+    }
 
-	public String getSource()
-	{
-		return source;
-	}
+    public String getSource()
+    {
+        return source;
+    }
 
-	public Charset getCharset()
-	{
-		return charset;
-	}
+    public Charset getCharset()
+    {
+        return charset;
+    }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,12 +48,12 @@ public class BookController
     { @ApiImplicitParam(name = "id", value = "书籍id", required = true, dataType = "Long"),
             @ApiImplicitParam(name = "index", value = "章节索引编号", required = true,
                     dataType = "int") })
-    @RequestMapping(value = "/chapter/{id}/{index}", method = RequestMethod.GET)
+    @GetMapping("/chapter/{id}/{index}")
     public Chapter chapter(@PathVariable Long id, @PathVariable int index)
     {
         Optional<BookDO> optional = bookService.findUseId(id);
         Optional<StorageBook> bookOption = bookService.read(optional.orElse(null));
-        Chapter chapter = bookOption.map(b -> b.getChapter(index)).orElse(new Chapter());
+        Chapter chapter = bookOption.map(b -> b.getChapter(id, index)).orElse(new Chapter());
         return chapter;
     }
 }

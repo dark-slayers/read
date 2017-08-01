@@ -14,18 +14,25 @@ import org.jsoup.nodes.Element;
  */
 public class StoryPage extends WebPage
 {
-	private String story;
+    private String story;
+    static final String NEWLINE = "#@@#";
 
-	public StoryPage(Path path)
-	{
-		super(path);
-		Document doc = Jsoup.parse(getSource());
-		Element content = doc.getElementById("content");
-		story = content.text();
-	}
+    public StoryPage(Path path)
+    {
+        super(path);
+        Document doc = Jsoup.parse(changeHtmlNewline(getSource()));
+        Element content = doc.getElementById("content");
+        story = content.text().replaceAll(NEWLINE, "\n");
+    }
 
-	public String getStory()
-	{
-		return story;
-	}
+    public String getStory()
+    {
+        return story;
+    }
+
+    static String changeHtmlNewline(String html)
+    {
+        return html.replaceAll("<\\s*?br\\s*?/??\\s*?>", NEWLINE).replaceAll(
+                "<\\s*?p\\s*?/??\\s*?>", NEWLINE);
+    }
 }

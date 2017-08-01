@@ -8,12 +8,23 @@ package person.liuxx.read.book;
  */
 public class Chapter
 {
+    private Long bookId;
     private int index;
     private String title;
     private String content;
 
     public Chapter()
     {
+    }
+
+    public Long getBookId()
+    {
+        return bookId;
+    }
+
+    public void setBookId(Long bookId)
+    {
+        this.bookId = bookId;
     }
 
     public int getIndex()
