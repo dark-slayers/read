@@ -34,10 +34,10 @@ public class SwaggerConfig
 
     private ApiInfo apiInfo()
     {
-        return new ApiInfoBuilder().title("Spring Boot中使用Swagger2构建RESTful APIs")
-                .description("更多Spring Boot相关文章请关注：http://blog.didispace.com/")
+        return new ApiInfoBuilder().title("BOOK Service APIs")
+                .description("BOOK Service ：http://localhost:8080/")
                 .termsOfServiceUrl("http://blog.didispace.com/")
-                .contact(new Contact("acc", "www.hyc.cn", "test@test.cn"))
+                .contact(new Contact("ac", "test.a.com", "rest@a.com"))
                 .version("1.0")
                 .build();
     }

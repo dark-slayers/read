@@ -1,7 +1,5 @@
 package person.liuxx.read;
 
-import java.nio.file.Paths;
-
 import javax.transaction.Transactional;
 
 import org.junit.Test;
@@ -11,8 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import person.liuxx.read.book.BookFactory;
-import person.liuxx.read.book.StorageBook;
 import person.liuxx.read.service.BookService;
 
 /**
@@ -33,7 +29,9 @@ public class RunTest
     @Test
     public void testRun()
     {
-        StorageBook book = BookFactory.parseDir(Paths.get("F:\\Book\\000007\\000007"), "张三丰异界游");
-        bookService.save(book);
+        // StorageBook book =
+        // BookFactory.parseDir(Paths.get("F:\\Book\\000007\\000007"),
+        // "张三丰异界游");
+        // bookService.save(book);
     }
 }
