@@ -37,9 +37,10 @@ public class BookService
     @Autowired
     private BookRepository bookDao;
 
-    public void save(StorageBook book)
+    public BookDO save(StorageBook book)
     {
         Objects.requireNonNull(book);
+        BookDO bookDO = new BookDO();
         String targetPath = DEFAULT_STORAGE_PATH;
         if (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig.getStoragePath()))
         {
@@ -50,14 +51,13 @@ public class BookService
                 ObjectOutputStream oos = new ObjectOutputStream(fos);)
         {
             oos.writeObject(book);
-            BookDO bookDO = new BookDO();
             bookDO.setName(book.getName());
             bookDO.setPath(targetPath);
-            bookDao.save(bookDO);
         } catch (IOException e)
         {
             log.error(LogUtil.errorInfo(e));
         }
+        return bookDao.save(bookDO);
     }
 
     /**
