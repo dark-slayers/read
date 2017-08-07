@@ -74,8 +74,8 @@ public class BookService
     public Optional<BookDO> findUseName(String bookName)
     {
         log.info("查询数据库，获取文件存储路径...");
-        BookDO bookDO = bookDao.findByName(bookName);
-        return Optional.ofNullable(bookDO);
+        Optional<BookDO> bookOptional = bookDao.findByName(bookName);
+        return bookOptional;
     }
 
     public Optional<BookDO> findUseId(Long bookId)

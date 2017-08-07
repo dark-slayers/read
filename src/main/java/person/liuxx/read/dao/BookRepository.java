@@ -1,5 +1,7 @@
 package person.liuxx.read.dao;
 
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import person.liuxx.read.domain.BookDO;
@@ -12,5 +14,5 @@ import person.liuxx.read.domain.BookDO;
  */
 public interface BookRepository extends JpaRepository<BookDO, Long>
 {
-    BookDO findByName(String name);
+    Optional<BookDO> findByName(String name);
 }
