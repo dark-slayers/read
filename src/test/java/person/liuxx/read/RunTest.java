@@ -1,5 +1,7 @@
 package person.liuxx.read;
 
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 
 import org.junit.Test;
@@ -9,6 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.service.BookService;
 
 /**
@@ -29,9 +32,9 @@ public class RunTest
     @Test
     public void testRun()
     {
-        // StorageBook book =
-        // BookFactory.parseDir(Paths.get("F:\\Book\\000007\\000007"),
-        // "张三丰异界游");
-        // bookService.save(book);
+        Optional<BookDO> b = bookService.findUseName("AAA");
+        System.out.println(b.get().getPath());
+        b = bookService.findUseName("张三丰异界游");
+        System.out.println(b.get().getPath());
     }
 }

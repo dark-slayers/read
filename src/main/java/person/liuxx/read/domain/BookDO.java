@@ -56,4 +56,11 @@ public class BookDO
     {
         this.path = path;
     }
+
+    @Override
+    public String toString()
+    {
+        return "BookDO [id=" + id + ", name=" + name + ", path=" + path + "]";
+    }
+    
 }

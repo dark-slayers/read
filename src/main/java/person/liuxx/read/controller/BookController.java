@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.ApiImplicitParam;
@@ -38,6 +39,17 @@ public class BookController
     private Logger log = LogManager.getLogger();
     @Autowired
     private BookService bookService;
+
+    @ApiOperation(value = "获取书籍信息", notes = "根据书籍名称来获取获取书籍信息")
+    @ApiImplicitParam(name = "name", value = "书籍名称", required = true, dataType = "String")
+    @GetMapping("/info")
+    public BookDO name(@RequestParam(value = "name", defaultValue = "CC") String name)
+    {
+        log.info("使用书籍名称《{}》查询对应的书籍", name);
+        BookDO bookDO = bookService.findUseName(name).orElse(new BookDO());
+        log.info("服务器响应：{}", bookDO);
+        return bookDO;
+    }
 
     @ApiOperation(value = "获取书籍目录列表信息", notes = "根据id来获取获取书籍目录列表信息")
     @ApiImplicitParam(name = "id", value = "书籍id", required = true, dataType = "Long")

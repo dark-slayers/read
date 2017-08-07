@@ -73,8 +73,9 @@ public class BookService
      */
     public Optional<BookDO> findUseName(String bookName)
     {
-        log.info("查询数据库，获取文件存储路径...");
+        log.debug("使用书籍名称《{}》查询数据库，获取文件对象...", bookName);
         Optional<BookDO> bookOptional = bookDao.findByName(bookName);
+        log.debug("使用书籍名称《{}》查询数据库结果：{}", bookName, bookOptional);
         return bookOptional;
     }
 
