@@ -63,9 +63,15 @@ public class BookService
             targetPath = Paths.get(bookConfig.getStoragePath()).resolve(hashPath(book));
         }
         log.info("文件存储路径：{}", targetPath);
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(targetPath));)
+        try
         {
             FileUtil.createFolderIfNotExists(targetPath);
+        } catch (IOException e)
+        {
+            log.error(LogUtil.errorInfo(e));
+        }
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(targetPath));)
+        {
             oos.writeObject(book);
             bookDO.setName(book.getName());
             bookDO.setPath(targetPath.toString());
