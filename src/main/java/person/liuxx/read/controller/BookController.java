@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -34,6 +35,7 @@ import person.liuxx.read.service.BookService;
  */
 @RestController
 @RequestMapping("/book")
+@Api(value = "书籍对象控制器")
 public class BookController
 {
     private Logger log = LogManager.getLogger();
