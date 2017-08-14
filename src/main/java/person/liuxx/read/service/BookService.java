@@ -24,7 +24,6 @@ import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.util.base.StringUtil;
-import person.liuxx.util.file.FileUtil;
 import person.liuxx.util.log.LogUtil;
 
 /**
@@ -65,7 +64,12 @@ public class BookService
         log.info("文件存储路径：{}", targetPath);
         try
         {
-            FileUtil.createFolderIfNotExists(targetPath);
+            Path parentPath = targetPath.getParent();
+            if (!Files.exists(parentPath))
+            {
+                log.info("文件父路径不存在，创建文件存储路径：{}", parentPath);
+                Files.createDirectories(parentPath);
+            }
         } catch (IOException e)
         {
             log.error(LogUtil.errorInfo(e));
