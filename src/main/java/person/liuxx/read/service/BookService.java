@@ -8,6 +8,8 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -17,8 +19,13 @@ import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import person.liuxx.read.BookNotFoundException;
 import person.liuxx.read.book.StorageBook;
 import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
@@ -157,5 +164,63 @@ public class BookService
             log.error(LogUtil.errorInfo(e));
         }
         return Optional.ofNullable(book);
+    }
+
+    /**
+     * 使用参数的ID，获取本地书籍资源，使用本地书籍资源生成txt文件<br>
+     * 返回txt文件资源流
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2017年8月15日 下午2:34:40
+     * @since 1.0.0
+     * @param id
+     *            需要获取的书籍id
+     * @return
+     */
+    public ResponseEntity<Resource> createTxtFile(Long id)
+    {
+        Optional<BookDO> optional = findUseId(id);
+        Optional<ResponseEntity<Resource>> op = optional.map(b ->
+        {
+            try
+            {
+                Path outPath = Paths.get(b.getPath()).getParent().resolve(b.getName() + ".txt");
+                Files.deleteIfExists(outPath);
+                List<String> lines = read(b).map(book ->
+                {
+                    List<String> list = new ArrayList<>();
+                    List<String> titleList = book.getTitles();
+                    List<String> storyList = book.getStories();
+                    for (int i = 0, max = titleList.size(); i < max; i++)
+                    {
+                        list.add(titleList.get(i));
+                        list.add(storyList.get(i));
+                    }
+                    return list;
+                }).get();
+                Files.write(outPath, lines);
+                Resource resource = new UrlResource(outPath.toUri());
+                if (resource.exists() || resource.isReadable())
+                {
+                    String contentDisposition = "attachment; filename=\"" + b.getName() + ".txt\"";
+                    log.info("设置下载文件的文件名：{}", contentDisposition);
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.CONTENT_DISPOSITION, new String(contentDisposition
+                                    .getBytes("UTF-8"), "ISO8859-1"))
+                            .body(resource);
+                } else
+                {
+                    throw new BookNotFoundException("Book not found, book id : " + id);
+                }
+            } catch (Exception e)
+            {
+                throw new BookNotFoundException("Book not found, book id : " + id, e);
+            }
+        });
+        return op.orElseThrow(() ->
+        {
+            throw new BookNotFoundException("Book not found, book id : " + id);
+        });
     }
 }

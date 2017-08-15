@@ -1,23 +1,23 @@
 package person.liuxx.read.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import person.liuxx.read.book.StorageBook;
-import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.BookNotFoundException;
 import person.liuxx.read.service.BookService;
+import person.liuxx.util.service.reponse.ErrorResponse;
 
 /**
  * @author 刘湘湘
@@ -36,13 +36,18 @@ public class BookResourceController
 
     @ApiOperation(value = "下载书籍", notes = "根据id来下载txt书籍")
     @ApiImplicitParam(name = "id", value = "书籍id", required = true, dataType = "Long")
-    @RequestMapping(value = "/txt/{id}", method = RequestMethod.GET)
-    public List<String> txt(@PathVariable Long id)
+    @GetMapping("/txt/{id}")
+    @ResponseBody
+    public ResponseEntity<Resource> txt(@PathVariable Long id)
     {
         log.info("下载id为{}的书籍...", id);
-        Optional<BookDO> optional = bookService.findUseId(id);
-        Optional<StorageBook> bookOption = bookService.read(optional.orElse(null));
-        List<String> list = bookOption.map(b -> b.getTitles()).orElse(new ArrayList<>());
-        return list;
+        return bookService.createTxtFile(id);
+    }
+
+    @ExceptionHandler(BookNotFoundException.class)
+    public ErrorResponse exceptionHandler()
+    {
+        ErrorResponse resp = new ErrorResponse(404, 40401, "访问的书籍资源不存在", "访问的书籍资源不存在", "more info");
+        return resp;
     }
 }
