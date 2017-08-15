@@ -1,4 +1,4 @@
-package person.liuxx.read.service;
+package person.liuxx.read.service.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -40,7 +40,7 @@ import person.liuxx.util.log.LogUtil;
  * @since 1.0.0
  */
 @Service
-public class BookService
+public class BookServiceImpl
 {
     private Logger log = LogManager.getLogger();
     private final static Path DEFAULT_STORAGE_PATH = Paths.get("F:\\Book\\Storage");

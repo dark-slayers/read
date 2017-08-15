@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.StorageBook;
 import person.liuxx.read.domain.BookDO;
-import person.liuxx.read.service.BookService;
+import person.liuxx.read.service.impl.BookServiceImpl;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
@@ -26,7 +26,7 @@ import springfox.documentation.annotations.ApiIgnore;
 public class TestController
 {
     @Autowired
-    private BookService bookService;
+    private BookServiceImpl bookService;
 
     @RequestMapping("/test")
     public List<String> greeting()

@@ -12,7 +12,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import person.liuxx.read.domain.BookDO;
-import person.liuxx.read.service.BookService;
+import person.liuxx.read.service.impl.BookServiceImpl;
 
 /**
  * @author 刘湘湘
@@ -27,7 +27,7 @@ import person.liuxx.read.service.BookService;
 public class RunTest
 {
     @Autowired
-    BookService bookService;
+    BookServiceImpl bookService;
 
     @Test
     public void testRun()

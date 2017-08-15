@@ -16,7 +16,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import person.liuxx.read.BookNotFoundException;
-import person.liuxx.read.service.BookService;
+import person.liuxx.read.service.impl.BookServiceImpl;
 import person.liuxx.util.service.reponse.ErrorResponse;
 
 /**
@@ -32,7 +32,7 @@ public class BookResourceController
 {
     private Logger log = LogManager.getLogger();
     @Autowired
-    private BookService bookService;
+    private BookServiceImpl bookService;
 
     @ApiOperation(value = "下载书籍", notes = "根据id来下载txt书籍")
     @ApiImplicitParam(name = "id", value = "书籍id", required = true, dataType = "Long")

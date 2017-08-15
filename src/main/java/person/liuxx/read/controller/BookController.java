@@ -25,7 +25,7 @@ import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.book.StorageBook;
 import person.liuxx.read.domain.BookDO;
-import person.liuxx.read.service.BookService;
+import person.liuxx.read.service.impl.BookServiceImpl;
 
 /**
  * @author 刘湘湘
@@ -40,7 +40,7 @@ public class BookController
 {
     private Logger log = LogManager.getLogger();
     @Autowired
-    private BookService bookService;
+    private BookServiceImpl bookService;
 
     @ApiOperation(value = "获取书籍信息", notes = "根据书籍名称来获取获取书籍信息")
     @ApiImplicitParam(name = "name", value = "书籍名称", required = true, dataType = "String")
