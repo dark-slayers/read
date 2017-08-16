@@ -1,4 +1,4 @@
-package person.liuxx.read;
+package person.liuxx.read.exception;
 
 /**
  * @author 刘湘湘

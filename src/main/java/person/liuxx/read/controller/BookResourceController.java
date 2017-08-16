@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import person.liuxx.read.BookNotFoundException;
+import person.liuxx.read.exception.BookNotFoundException;
 import person.liuxx.read.service.impl.BookServiceImpl;
 import person.liuxx.util.service.reponse.ErrorResponse;
 

@@ -1,5 +1,6 @@
 package person.liuxx.read.controller;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,14 @@ public class TestController
     List<String> save()
     {
         StorageBook book = BookFactory.parseDir(Paths.get("F:\\Book\\000007\\000007"), "张三丰异界游");
-        bookService.save(book);
+        try
+        {
+            bookService.save(book);
+        } catch (IOException e)
+        {
+            // TODO 自动生成的 catch 块
+            e.printStackTrace();
+        }
         return bookTest(book);
     }
 

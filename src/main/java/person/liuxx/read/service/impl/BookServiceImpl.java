@@ -1,35 +1,25 @@
 package person.liuxx.read.service.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import person.liuxx.read.BookNotFoundException;
+import person.liuxx.read.book.Chapter;
 import person.liuxx.read.book.StorageBook;
 import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.exception.BookNotFoundException;
+import person.liuxx.read.exception.BookSaveFailedException;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
 
@@ -50,77 +40,6 @@ public class BookServiceImpl
     private BookRepository bookDao;
 
     /**
-     * 将StorageBook对象保存至本地文件，同时将保存路径写入数据库
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年8月14日 上午10:18:23
-     * @since 1.0.0
-     * @param book
-     * @return
-     */
-    public BookDO save(StorageBook book)
-    {
-        Objects.requireNonNull(book);
-        BookDO bookDO = new BookDO();
-        Path targetPath = DEFAULT_STORAGE_PATH.resolve(hashPath(book));
-        if (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig.getStoragePath()))
-        {
-            targetPath = Paths.get(bookConfig.getStoragePath()).resolve(hashPath(book));
-        }
-        log.info("文件存储路径：{}", targetPath);
-        try
-        {
-            Path parentPath = targetPath.getParent();
-            if (!Files.exists(parentPath))
-            {
-                log.info("文件父路径不存在，创建文件存储路径：{}", parentPath);
-                Files.createDirectories(parentPath);
-            }
-        } catch (IOException e)
-        {
-            log.error(LogUtil.errorInfo(e));
-        }
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(targetPath));)
-        {
-            oos.writeObject(book);
-            bookDO.setName(book.getName());
-            bookDO.setPath(targetPath.toString());
-        } catch (IOException e)
-        {
-            log.error(LogUtil.errorInfo(e));
-        }
-        return bookDao.save(bookDO);
-    }
-
-    /**
-     * 使用文件名的hash码生成一个三层的子路径，每一层为一个十六进制字符
-     * <p>
-     * 文件名的hash码（十六进制）如果不足三位，补0
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年8月14日 上午11:37:28
-     * @since 1.0.0
-     * @param book
-     * @return
-     */
-    private Path hashPath(StorageBook book)
-    {
-        String bookName = book.getName();
-        // 获取文件名的十六进制hash码，转为流，流的元素为每个hash码的字符串表示，字符转为大写
-        Stream<String> stream = Pattern.compile("")
-                .splitAsStream(Integer.toHexString(bookName.hashCode()))
-                .map(String::toUpperCase);
-        // 创建当hash码长度不足三位时用来补位的流
-        Stream<String> supplyStream = Stream.of("0", "0", "0");
-        // 合并两个流，截取前三位，使用系统路径分隔符进行合并
-        String subPath = Stream.concat(stream, supplyStream).limit(3).collect(Collectors.joining(
-                File.separator));
-        return Paths.get(subPath, bookName + ".book");
-    }
-
-    /**
      * 使用书籍名称从数据库中查询书籍对象
      * 
      * @author 刘湘湘
@@ -129,41 +48,84 @@ public class BookServiceImpl
      * @since 1.0.0
      * @param bookName
      *            书籍名称
-     * @return
+     * @return 一个包含BookDO对象的Optional容器，可能为空容器(Optional.empty())
      */
     public Optional<BookDO> findUseName(String bookName)
     {
-        log.debug("使用书籍名称《{}》查询数据库，获取文件对象...", bookName);
         Optional<BookDO> bookOptional = bookDao.findByName(bookName);
-        log.debug("使用书籍名称《{}》查询数据库结果：{}", bookName, bookOptional);
         return bookOptional;
     }
 
+    /**
+     * 使用书籍ID查询书籍对象
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2017年8月16日 上午11:49:36
+     * @since 1.0.0
+     * @param bookId
+     *            书籍ID
+     * @return 一个包含BookDO对象的Optional容器，可能为空容器(Optional.empty())
+     */
     public Optional<BookDO> findUseId(Long bookId)
     {
-        log.info("查询数据库，获取文件存储路径...");
         BookDO bookDO = bookDao.findOne(bookId);
         return Optional.ofNullable(bookDO);
     }
 
+    /**
+     * 将StorageBook对象保存至本地文件，同时将保存路径写入数据库
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2017年8月14日 上午10:18:23
+     * @since 1.0.0
+     * @param book
+     * @return
+     * @throws IOException
+     */
+    public BookDO save(StorageBook book) throws IOException
+    {
+        Objects.requireNonNull(book);
+        BookDO bookDO = new BookDO();
+        // 如果无法从配置文件中获取存储路径，使用默认路径作为存储路径
+        Path targetPath = (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig
+                .getStoragePath())) ? Paths.get(bookConfig.getStoragePath()) : DEFAULT_STORAGE_PATH;
+        log.info("文件存储路径：{}", targetPath);
+        bookDO.setPath(book.save(targetPath).toString());
+        bookDO.setName(book.getName());
+        return bookDao.save(bookDO);
+    }
+
+    /**
+     * 使用BookDO中的路径对象，获取保存在本地磁盘的序列化后的StorageBook对象<br>
+     * 如果参数为null或者无法将其中的path字符串信息解析为合法路径，返回Optional.empty()
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2017年8月16日 上午11:50:03
+     * @since 1.0.0
+     * @param bookDO
+     * @return 一个包含StorageBook对象的Optional容器，可能为空容器(Optional.empty())
+     */
     public Optional<StorageBook> read(BookDO bookDO)
     {
         if (Objects.isNull(bookDO) || StringUtil.isEmpty(bookDO.getPath()))
         {
+            log.warn("无效的bookDO数据：{}", bookDO);
             return Optional.empty();
         }
-        String targetPath = bookDO.getPath();
+        Path targetPath = Paths.get(bookDO.getPath());
         log.info("文件存储路径：{}", targetPath);
-        StorageBook book = null;
-        try (FileInputStream fis = new FileInputStream(targetPath);
-                ObjectInputStream ois = new ObjectInputStream(fis);)
+        try
         {
-            book = (StorageBook) ois.readObject();
-        } catch (IOException | ClassNotFoundException e)
+            return Optional.ofNullable(StorageBook.load(targetPath));
+        } catch (ClassNotFoundException | IOException e)
         {
+            log.error("尝试从路径{}获取文件失败！", targetPath);
             log.error(LogUtil.errorInfo(e));
+            return Optional.empty();
         }
-        return Optional.ofNullable(book);
     }
 
     /**
@@ -180,47 +142,44 @@ public class BookServiceImpl
      */
     public ResponseEntity<Resource> createTxtFile(Long id)
     {
-        Optional<BookDO> optional = findUseId(id);
-        Optional<ResponseEntity<Resource>> op = optional.map(b ->
+        Optional<BookDO> bookOptional = findUseId(id);
+        Optional<ResponseEntity<Resource>> result = bookOptional.map(b ->
         {
-            try
-            {
-                Path outPath = Paths.get(b.getPath()).getParent().resolve(b.getName() + ".txt");
-                Files.deleteIfExists(outPath);
-                List<String> lines = read(b).map(book ->
-                {
-                    List<String> list = new ArrayList<>();
-                    List<String> titleList = book.getTitles();
-                    List<String> storyList = book.getStories();
-                    for (int i = 0, max = titleList.size(); i < max; i++)
-                    {
-                        list.add(titleList.get(i));
-                        list.add(storyList.get(i));
-                    }
-                    return list;
-                }).get();
-                Files.write(outPath, lines);
-                Resource resource = new UrlResource(outPath.toUri());
-                if (resource.exists() || resource.isReadable())
-                {
-                    String contentDisposition = "attachment; filename=\"" + b.getName() + ".txt\"";
-                    log.info("设置下载文件的文件名：{}", contentDisposition);
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.CONTENT_DISPOSITION, new String(contentDisposition
-                                    .getBytes("UTF-8"), "ISO8859-1"))
-                            .body(resource);
-                } else
-                {
-                    throw new BookNotFoundException("Book not found, book id : " + id);
-                }
-            } catch (Exception e)
-            {
-                throw new BookNotFoundException("Book not found, book id : " + id, e);
-            }
+            return Paths.get(b.getPath()).getParent().resolve(b.getName() + ".txt");
+        }).flatMap(p ->
+        {
+            return read(bookOptional.orElse(null)).map(b -> b.createTxt(p));
         });
-        return op.orElseThrow(() ->
+        return result.orElseThrow(() ->
         {
             throw new BookNotFoundException("Book not found, book id : " + id);
         });
+    }
+
+    public Chapter deleteChapter(Long bookId, int chapterIndex)
+    {
+        Optional<BookDO> optional = findUseId(bookId);
+        Optional<StorageBook> bookOptional = read(optional.orElse(null));
+        Chapter emptyChapter = new Chapter();
+        emptyChapter.setBookId(-1L);
+        emptyChapter.setIndex(-1);
+        emptyChapter.setTitle("");
+        emptyChapter.setContent("");
+        Chapter result = bookOptional.filter(b -> b.getTitles().size() > chapterIndex && b
+                .getStories().size() > chapterIndex).map(b ->
+                {
+                    Chapter chapter = b.getChapter(bookId, chapterIndex);
+                    b.getTitles().remove(chapterIndex);
+                    b.getStories().remove(chapterIndex);
+                    try
+                    {
+                        b.update(optional.orElse(null));
+                    } catch (Exception e)
+                    {
+                        throw new BookSaveFailedException("文件更细失败！", e);
+                    }
+                    return chapter;
+                }).orElse(emptyChapter);
+        return result;
     }
 }

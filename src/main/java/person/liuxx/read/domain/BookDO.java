@@ -62,5 +62,4 @@ public class BookDO
     {
         return "BookDO [id=" + id + ", name=" + name + ", path=" + path + "]";
     }
-    
 }
