@@ -3,6 +3,8 @@ package person.liuxx.read.service.impl;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -13,15 +15,17 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.book.StorageBook;
+import person.liuxx.read.cache.BookCache;
 import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.exception.BookNotFoundException;
 import person.liuxx.read.exception.BookSaveFailedException;
+import person.liuxx.read.service.BookService;
 import person.liuxx.util.base.StringUtil;
-import person.liuxx.util.log.LogUtil;
 
 /**
  * @author 刘湘湘
@@ -30,7 +34,7 @@ import person.liuxx.util.log.LogUtil;
  * @since 1.0.0
  */
 @Service
-public class BookServiceImpl
+public class BookServiceImpl implements BookService
 {
     private Logger log = LogManager.getLogger();
     private final static Path DEFAULT_STORAGE_PATH = Paths.get("F:\\Book\\Storage");
@@ -38,94 +42,12 @@ public class BookServiceImpl
     private BookConfig bookConfig;
     @Autowired
     private BookRepository bookDao;
+    @Autowired
+    private BookCache bookCache;
 
-    /**
-     * 使用书籍名称从数据库中查询书籍对象
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年7月31日 下午2:33:10
-     * @since 1.0.0
-     * @param bookName
-     *            书籍名称
-     * @return 一个包含BookDO对象的Optional容器，可能为空容器(Optional.empty())
-     */
-    public Optional<BookDO> findUseName(String bookName)
+    private Optional<StorageBook> loadStorageBook(BookDO book)
     {
-        Optional<BookDO> bookOptional = bookDao.findByName(bookName);
-        return bookOptional;
-    }
-
-    /**
-     * 使用书籍ID查询书籍对象
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年8月16日 上午11:49:36
-     * @since 1.0.0
-     * @param bookId
-     *            书籍ID
-     * @return 一个包含BookDO对象的Optional容器，可能为空容器(Optional.empty())
-     */
-    public Optional<BookDO> findUseId(Long bookId)
-    {
-        BookDO bookDO = bookDao.findOne(bookId);
-        return Optional.ofNullable(bookDO);
-    }
-
-    /**
-     * 将StorageBook对象保存至本地文件，同时将保存路径写入数据库
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年8月14日 上午10:18:23
-     * @since 1.0.0
-     * @param book
-     * @return
-     * @throws IOException
-     */
-    public BookDO save(StorageBook book) throws IOException
-    {
-        Objects.requireNonNull(book);
-        BookDO bookDO = new BookDO();
-        // 如果无法从配置文件中获取存储路径，使用默认路径作为存储路径
-        Path targetPath = (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig
-                .getStoragePath())) ? Paths.get(bookConfig.getStoragePath()) : DEFAULT_STORAGE_PATH;
-        log.info("文件存储路径：{}", targetPath);
-        bookDO.setPath(book.save(targetPath).toString());
-        bookDO.setName(book.getName());
-        return bookDao.save(bookDO);
-    }
-
-    /**
-     * 使用BookDO中的路径对象，获取保存在本地磁盘的序列化后的StorageBook对象<br>
-     * 如果参数为null或者无法将其中的path字符串信息解析为合法路径，返回Optional.empty()
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年8月16日 上午11:50:03
-     * @since 1.0.0
-     * @param bookDO
-     * @return 一个包含StorageBook对象的Optional容器，可能为空容器(Optional.empty())
-     */
-    public Optional<StorageBook> read(BookDO bookDO)
-    {
-        if (Objects.isNull(bookDO) || StringUtil.isEmpty(bookDO.getPath()))
-        {
-            log.warn("无效的bookDO数据：{}", bookDO);
-            return Optional.empty();
-        }
-        Path targetPath = Paths.get(bookDO.getPath());
-        log.info("文件存储路径：{}", targetPath);
-        try
-        {
-            return Optional.ofNullable(StorageBook.load(targetPath));
-        } catch (ClassNotFoundException | IOException e)
-        {
-            log.error("尝试从路径{}获取文件失败！", targetPath);
-            log.error(LogUtil.errorInfo(e));
-            return Optional.empty();
-        }
+        return bookCache.getStorageBook(book);
     }
 
     /**
@@ -140,15 +62,18 @@ public class BookServiceImpl
      *            需要获取的书籍id
      * @return
      */
-    public ResponseEntity<Resource> createTxtFile(Long id)
+    public ResponseEntity<Resource> getTxtFile(Long id)
     {
-        Optional<BookDO> bookOptional = findUseId(id);
+        log.info("下载id为{}的书籍的TXT文件...", id);
+        Optional<BookDO> bookOptional = bookDao.findById(id);
         Optional<ResponseEntity<Resource>> result = bookOptional.map(b ->
         {
+            log.info("从数据库中查询到id为{}的书籍记录", id);
             return Paths.get(b.getPath()).getParent().resolve(b.getName() + ".txt");
         }).flatMap(p ->
         {
-            return read(bookOptional.orElse(null)).map(b -> b.createTxt(p));
+            log.info("从数据库记录的书籍信息的路径{}中加载书籍对象", p);
+            return loadStorageBook(bookOptional.orElse(null)).map(b -> b.createTxt(p));
         });
         return result.orElseThrow(() ->
         {
@@ -156,24 +81,71 @@ public class BookServiceImpl
         });
     }
 
-    /**
-     * 删除指定书籍的指定章节
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年8月17日 上午9:49:49
-     * @since 1.0.0
-     * @param bookId
-     *            书籍ID
-     * @param chapterIndex
-     *            章节索引
-     * @return 被删除的章节信息，如果删除失败，返回一个空白章节（书籍id和索引id都为-1）<br>
-     *         如果更新本地文件时发生异常，抛出BookSaveFailedException
-     */
-    public Chapter deleteChapter(Long bookId, int chapterIndex)
+    @Override
+    public BookDO getBook(String name)
     {
-        Optional<BookDO> optional = findUseId(bookId);
-        Optional<StorageBook> bookOptional = read(optional.orElse(null));
+        log.info("使用书籍名称《{}》查询对应的书籍", name);
+        BookDO bookDO = bookDao.findByName(name).orElse(new BookDO());
+        log.info("查询结果：{}", bookDO);
+        return bookDO;
+    }
+
+    @Override
+    public List<String> listBookTitle(Long bookId)
+    {
+        log.info("使用书籍id{}获取书籍目录列表", bookId);
+        Optional<BookDO> optional = bookDao.findById(bookId);
+        Optional<StorageBook> bookOption = loadStorageBook(optional.orElse(null));
+        List<String> list = bookOption.map(b -> b.getTitles()).orElse(new ArrayList<>());
+        return list;
+    }
+
+    @Override
+    public BookDO loadDir(BookDO book)
+    {
+        log.info("需要添加的book信息：{}", book);
+        StorageBook b = BookFactory.parseDir(Paths.get(book.getPath()), book.getName());
+        try
+        {
+            BookDO bookDO = new BookDO();
+            // 如果无法从配置文件中获取存储路径，使用默认路径作为存储路径
+            Path targetPath = (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig
+                    .getStoragePath())) ? Paths.get(bookConfig.getStoragePath())
+                            : DEFAULT_STORAGE_PATH;
+            log.info("文件存储路径：{}", targetPath);
+            bookDO.setPath(b.save(targetPath).toString());
+            bookDO.setName(b.getName());
+            return bookDao.save(bookDO);
+        } catch (IOException e)
+        {
+            throw new BookSaveFailedException("书籍保存失败：" + book, e);
+        }
+    }
+
+    @Override
+    public Chapter getChapter(Long bookId, int chapterIndex)
+    {
+        log.info("查询书籍id为{}，章节索引为{}的章节", bookId, chapterIndex);
+        Optional<BookDO> optional = bookDao.findById(bookId);
+        Optional<StorageBook> bookOption = loadStorageBook(optional.orElse(null));
+        Chapter chapter = bookOption.map(b -> b.getChapter(bookId, chapterIndex)).orElse(
+                new Chapter());
+        return chapter;
+    }
+
+    @Override
+    public Chapter saveChapter(Chapter chapter)
+    {
+        // TODO 自动生成的方法存根
+        return null;
+    }
+
+    @Override
+    public Chapter removeChapter(Long bookId, int chapterIndex)
+    {
+        log.info("请求删除id为{}的书籍中，索引为{}的章节", bookId, chapterIndex);
+        Optional<BookDO> optional = bookDao.findById(bookId);
+        Optional<StorageBook> bookOptional = loadStorageBook(optional.orElse(null));
         Chapter emptyChapter = new Chapter();
         emptyChapter.setBookId(-1L);
         emptyChapter.setIndex(-1);
@@ -195,5 +167,12 @@ public class BookServiceImpl
                     return chapter;
                 }).orElse(emptyChapter);
         return result;
+    }
+
+    @Override
+    public Chapter updateChapter(Chapter chapter)
+    {
+        // TODO 自动生成的方法存根
+        return null;
     }
 }

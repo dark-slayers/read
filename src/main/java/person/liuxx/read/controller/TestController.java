@@ -1,18 +1,13 @@
 package person.liuxx.read.controller;
 
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.StorageBook;
-import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.service.impl.BookServiceImpl;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -27,7 +22,7 @@ import springfox.documentation.annotations.ApiIgnore;
 public class TestController
 {
     @Autowired
-    private BookServiceImpl bookService;
+    BookServiceImpl bookService;
 
     @RequestMapping("/test")
     public List<String> greeting()
@@ -35,26 +30,9 @@ public class TestController
         return save();
     }
 
-    List<String> load()
-    {
-        Optional<BookDO> optional = bookService.findUseName("张三丰异界游");
-        Optional<StorageBook> bookOption = bookService.read(optional.orElse(null));
-        List<String> list = bookOption.map(b -> bookTest(b)).orElse(new ArrayList<>());
-        return list;
-    }
-
     List<String> save()
     {
-        StorageBook book = BookFactory.parseDir(Paths.get("F:\\Book\\000007\\000007"), "张三丰异界游");
-        try
-        {
-            bookService.save(book);
-        } catch (IOException e)
-        {
-            // TODO 自动生成的 catch 块
-            e.printStackTrace();
-        }
-        return bookTest(book);
+        return new ArrayList<>();
     }
 
     List<String> bookTest(StorageBook book)
