@@ -71,7 +71,7 @@ public class BookController
         return list;
     }
 
-    @ApiOperation(value = "添加本地书籍", notes = "解析传来的BookDO信息，使用path信息和name信息增加新的book")
+    @ApiOperation(value = "请求服务器添加服务器磁盘存储的书籍", notes = "解析传来的BookDO信息，使用path信息和name信息增加新的book")
     @ApiImplicitParams(
     { @ApiImplicitParam(name = "book", value = "书籍信息实体BookDO", required = true,
             dataType = "BookDO") })
@@ -116,11 +116,8 @@ public class BookController
         return bookService.deleteChapter(bookId, chapterIndex);
     }
 
-    @ApiOperation(value = "获取指定id书籍的索引编号为index章节的信息", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
-    @ApiImplicitParams(
-    { @ApiImplicitParam(name = "id", value = "书籍id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "index", value = "章节索引编号", required = true,
-                    dataType = "int") })
+    @ApiOperation(value = "更新章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
+    @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
     @PutMapping("/chapter")
     public Chapter updateChapter(@RequestBody Chapter chapter)
     {

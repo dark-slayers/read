@@ -181,6 +181,13 @@ public class StorageBook implements Serializable
         return path;
     }
 
+    /** 在指定位置生成TXT文件，返回表示该TXT文件的服务器响应资源流
+    * @author  刘湘湘 
+    * @version 1.0.0<br>创建时间：2017年8月17日 上午9:54:34
+    * @since 1.0.0 
+    * @param outPath
+    * @return
+    */
     public ResponseEntity<Resource> createTxt(Path outPath)
     {
         if (Objects.isNull(outPath))

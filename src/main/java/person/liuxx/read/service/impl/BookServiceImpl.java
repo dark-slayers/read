@@ -156,6 +156,20 @@ public class BookServiceImpl
         });
     }
 
+    /**
+     * 删除指定书籍的指定章节
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2017年8月17日 上午9:49:49
+     * @since 1.0.0
+     * @param bookId
+     *            书籍ID
+     * @param chapterIndex
+     *            章节索引
+     * @return 被删除的章节信息，如果删除失败，返回一个空白章节（书籍id和索引id都为-1）<br>
+     *         如果更新本地文件时发生异常，抛出BookSaveFailedException
+     */
     public Chapter deleteChapter(Long bookId, int chapterIndex)
     {
         Optional<BookDO> optional = findUseId(bookId);
@@ -176,7 +190,7 @@ public class BookServiceImpl
                         b.update(optional.orElse(null));
                     } catch (Exception e)
                     {
-                        throw new BookSaveFailedException("文件更细失败！", e);
+                        throw new BookSaveFailedException("文件更新失败！", e);
                     }
                     return chapter;
                 }).orElse(emptyChapter);
