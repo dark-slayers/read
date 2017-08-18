@@ -132,6 +132,7 @@ public class BookServiceImpl implements BookService
     @Override
     public Optional<Chapter> saveChapter(Chapter chapter)
     {
+        Optional<StorageBook> bookOptional=loadStorageBookById(chapter.getBookId());
         return Optional.empty();
     }
 

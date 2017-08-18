@@ -97,13 +97,24 @@ public class BookController
         });
     }
 
+    @ApiOperation(value = "添加章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
+    @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
+    @PutMapping("/chapter")
+    public Chapter saveChapter(@RequestBody Chapter chapter)
+    {
+        return bookService.saveChapter(chapter).orElseThrow(() ->
+        {
+            throw new BookUpdateFailedException("书籍章节添加失败，章节信息：" + chapter.getBookId());
+        });
+    }
+
     @ApiOperation(value = "删除章节", notes = "从指定id书籍中，删除索引编号为index章节")
     @ApiImplicitParams(
     { @ApiImplicitParam(name = "bookId", value = "书籍id", required = true, dataType = "Long"),
             @ApiImplicitParam(name = "chapterIndex", value = "章节索引编号", required = true,
                     dataType = "int") })
     @DeleteMapping("/chapter/{bookId}/{chapterIndex}")
-    public Chapter deleteChapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
+    public Chapter removeChapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
     {
         return bookService.removeChapter(bookId, chapterIndex).orElseThrow(() ->
         {

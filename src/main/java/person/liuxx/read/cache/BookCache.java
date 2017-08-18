@@ -69,7 +69,7 @@ public class BookCache
         log.info("加载id为{}的StorageBook对象", id);
         if (Objects.isNull(id))
         {
-            log.info("无效参数：{}", id);
+            log.info("无效的ID参数：{}", id);
             return Optional.empty();
         }
         Optional<BookDO> bookOptional = getBookDOById(id);
