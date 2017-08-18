@@ -104,7 +104,7 @@ public class BookController
     {
         return bookService.saveChapter(chapter).orElseThrow(() ->
         {
-            throw new BookUpdateFailedException("书籍章节添加失败，章节信息：" + chapter.getBookId());
+            throw new BookUpdateFailedException("书籍章节添加失败，章节信息：" + chapter.getLogInfo());
         });
     }
 
@@ -130,7 +130,7 @@ public class BookController
     {
         return bookService.updateChapter(chapter).orElseThrow(() ->
         {
-            throw new BookUpdateFailedException("书籍章节更新失败，章节信息：" + chapter);
+            throw new BookUpdateFailedException("书籍章节更新失败，章节信息：" + chapter.getLogInfo());
         });
     }
 

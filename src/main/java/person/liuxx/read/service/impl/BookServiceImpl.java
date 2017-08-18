@@ -132,8 +132,27 @@ public class BookServiceImpl implements BookService
     @Override
     public Optional<Chapter> saveChapter(Chapter chapter)
     {
-        Optional<StorageBook> bookOptional=loadStorageBookById(chapter.getBookId());
-        return Optional.empty();
+        Optional<Chapter> result = Optional.ofNullable(chapter)
+                .filter(c -> c.getBookId() >= 0 && c.getIndex() >= 0)
+                .flatMap(c -> loadStorageBookById(chapter.getBookId()))
+                .map(b ->
+                {
+                    Optional<BookDO> bookDO = getBookDOById(chapter.getBookId());
+                    return bookDO.map(bDO ->
+                    {
+                        b.getTitles().add(chapter.getIndex(), chapter.getTitle());
+                        b.getStories().add(chapter.getIndex(), chapter.getContent());
+                        try
+                        {
+                            b.update(bookDO.orElse(null));
+                        } catch (Exception e)
+                        {
+                            throw new BookSaveFailedException("文件更新失败！", e);
+                        }
+                        return chapter;
+                    }).orElse(null);
+                });
+        return result;
     }
 
     @Override
