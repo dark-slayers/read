@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import person.liuxx.read.exception.BookNotFoundException;
 import person.liuxx.read.service.impl.BookServiceImpl;
+import person.liuxx.util.log.LogUtil;
 import person.liuxx.util.service.reponse.ErrorResponse;
 
 /**
@@ -41,13 +42,17 @@ public class BookResourceController
     public ResponseEntity<Resource> txt(@PathVariable Long id)
     {
         log.info("下载id为{}的书籍...", id);
-        return bookService.getTxtFile(id);
+        return bookService.getTxtFile(id).orElseThrow(() ->
+        {
+            throw new BookNotFoundException("无法下载书籍的txt文件，书籍名称：" + id);
+        });
     }
 
     @ExceptionHandler(BookNotFoundException.class)
-    public ErrorResponse exceptionHandler()
+    public ErrorResponse exceptionHandler(BookNotFoundException e)
     {
-        ErrorResponse resp = new ErrorResponse(404, 40401, "访问的书籍资源不存在", "访问的书籍资源不存在", "more info");
+        ErrorResponse resp = new ErrorResponse(404, 40491, "无法下载书籍的txt文件", "失败信息：" + LogUtil
+                .errorInfo(e), "more info");
         return resp;
     }
 }

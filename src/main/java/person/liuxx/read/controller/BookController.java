@@ -23,7 +23,11 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.exception.BookLoadFailedException;
+import person.liuxx.read.exception.BookNotFoundException;
+import person.liuxx.read.exception.BookRemoveFailedException;
 import person.liuxx.read.exception.BookSaveFailedException;
+import person.liuxx.read.exception.BookUpdateFailedException;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.log.LogUtil;
 import person.liuxx.util.service.reponse.ErrorResponse;
@@ -48,7 +52,10 @@ public class BookController
     @GetMapping("/info")
     public BookDO name(@RequestParam(value = "name", defaultValue = "CC") String name)
     {
-        return bookService.getBook(name);
+        return bookService.getBook(name).orElseThrow(() ->
+        {
+            throw new BookNotFoundException("书籍查询失败，书籍名称：" + name);
+        });
     }
 
     @ApiOperation(value = "获取书籍目录列表信息", notes = "根据id来获取获取书籍目录列表信息")
@@ -56,7 +63,10 @@ public class BookController
     @RequestMapping(value = "/titles/{bookId}", method = RequestMethod.GET)
     public List<String> titleList(@PathVariable Long bookId)
     {
-        return bookService.listBookTitle(bookId);
+        return bookService.listBookTitle(bookId).orElseThrow(() ->
+        {
+            throw new BookNotFoundException("书籍查询失败，书籍id：" + bookId);
+        });
     }
 
     @ApiOperation(value = "请求服务器添加服务器磁盘存储的书籍", notes = "解析传来的BookDO信息，使用path信息和name信息增加新的book")
@@ -66,7 +76,10 @@ public class BookController
     @PostMapping("path")
     public BookDO load(@RequestBody BookDO book)
     {
-        return bookService.loadDir(book);
+        return bookService.loadDir(book).orElseThrow(() ->
+        {
+            throw new BookLoadFailedException("加载书籍失败，书籍信息：" + book);
+        });
     }
 
     @ApiOperation(value = "获取章节的信息", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
@@ -77,7 +90,11 @@ public class BookController
     @GetMapping("/chapter/{bookId}/{chapterIndex}")
     public Chapter chapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
     {
-        return bookService.getChapter(bookId, chapterIndex);
+        return bookService.getChapter(bookId, chapterIndex).orElseThrow(() ->
+        {
+            throw new BookUpdateFailedException("书籍章节获取失败，书籍id：" + bookId + "，章节索引："
+                    + chapterIndex);
+        });
     }
 
     @ApiOperation(value = "删除章节", notes = "从指定id书籍中，删除索引编号为index章节")
@@ -88,7 +105,11 @@ public class BookController
     @DeleteMapping("/chapter/{bookId}/{chapterIndex}")
     public Chapter deleteChapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
     {
-        return bookService.removeChapter(bookId, chapterIndex);
+        return bookService.removeChapter(bookId, chapterIndex).orElseThrow(() ->
+        {
+            throw new BookUpdateFailedException("书籍章节删除失败，书籍id：" + bookId + "，章节索引："
+                    + chapterIndex);
+        });
     }
 
     @ApiOperation(value = "更新章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
@@ -96,15 +117,51 @@ public class BookController
     @PutMapping("/chapter")
     public Chapter updateChapter(@RequestBody Chapter chapter)
     {
-        return bookService.updateChapter(chapter);
+        return bookService.updateChapter(chapter).orElseThrow(() ->
+        {
+            throw new BookUpdateFailedException("书籍章节更新失败，章节信息：" + chapter);
+        });
     }
 
-    @ExceptionHandler(BookSaveFailedException.class)
-    public ErrorResponse exceptionHandler(BookSaveFailedException e)
+    @ExceptionHandler(
+    { BookSaveFailedException.class, BookRemoveFailedException.class,
+            BookUpdateFailedException.class, BookLoadFailedException.class,
+            BookNotFoundException.class })
+    public ErrorResponse exceptionHandler(Exception e)
     {
         log.error(LogUtil.errorInfo(e));
-        ErrorResponse resp = new ErrorResponse(500, 50001, "书籍保存失败", "失败信息：" + LogUtil.errorInfo(e),
-                "more info");
-        return resp;
+        switch (e.getClass().getName())
+        {
+        case "BookSaveFailedException":
+            {
+                return new ErrorResponse(500, 50002, "书籍保存失败", "失败信息：" + LogUtil.errorInfo(e),
+                        "more info");
+            }
+        case "BookRemoveFailedException":
+            {
+                return new ErrorResponse(500, 50003, "书籍删除失败", "失败信息：" + LogUtil.errorInfo(e),
+                        "more info");
+            }
+        case "BookUpdateFailedException":
+            {
+                return new ErrorResponse(500, 50004, "书籍更新失败", "失败信息：" + LogUtil.errorInfo(e),
+                        "more info");
+            }
+        case "BookLoadFailedException":
+            {
+                return new ErrorResponse(500, 50005, "书籍加载失败", "失败信息：" + LogUtil.errorInfo(e),
+                        "more info");
+            }
+        case "BookNotFoundException":
+            {
+                return new ErrorResponse(404, 40402, "获取书籍失败", "失败信息：" + LogUtil.errorInfo(e),
+                        "more info");
+            }
+        default:
+            {
+                return new ErrorResponse(500, 50001, "未知错误", "失败信息：" + LogUtil.errorInfo(e),
+                        "more info");
+            }
+        }
     }
 }

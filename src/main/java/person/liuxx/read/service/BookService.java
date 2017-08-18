@@ -1,6 +1,7 @@
 package person.liuxx.read.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.domain.BookDO;
@@ -23,7 +24,7 @@ public interface BookService
      * @param name
      * @return
      */
-    BookDO getBook(String name);
+    Optional<BookDO> getBook(String name);
 
     /**
      * 获取指定ID的书籍的目录列表
@@ -35,7 +36,7 @@ public interface BookService
      * @param bookId
      * @return
      */
-    List<String> listBookTitle(Long bookId);
+    Optional<List<String>> listBookTitle(Long bookId);
 
     /**
      * 加载本地磁盘的指定文件夹，将此文件夹解析为指定书籍名称的书籍
@@ -48,7 +49,7 @@ public interface BookService
      *            书籍信息对象，name字段为书籍名称，path字段为需要解析的文件夹路径
      * @return 如果解析成功，返回存入数据库的书籍信息，该信息中包含id和书籍的文件路径
      */
-    BookDO loadDir(BookDO book);
+    Optional<BookDO> loadDir(BookDO book);
 
     /**
      * 添加新章节，参数中的index表示插入成功后的章节索引号<br>
@@ -60,7 +61,7 @@ public interface BookService
      * @since 1.0.0
      * @return
      */
-    Chapter saveChapter(Chapter chapter);
+    Optional<Chapter> saveChapter(Chapter chapter);
 
     /**
      * 删除指定书籍的指定章节
@@ -76,7 +77,7 @@ public interface BookService
      * @return 被删除的章节信息，如果删除失败，返回一个空白章节（书籍id和索引id都为-1）<br>
      *         如果更新本地文件时发生异常，抛出BookSaveFailedException
      */
-    Chapter removeChapter(Long bookId, int chapterIndex);
+    Optional<Chapter> removeChapter(Long bookId, int chapterIndex);
 
     /**
      * 使用参数信息，更新指定章节
@@ -88,7 +89,7 @@ public interface BookService
      * @param chapter
      * @return
      */
-    Chapter updateChapter(Chapter chapter);
+    Optional<Chapter> updateChapter(Chapter chapter);
 
     /**
      * 使用书籍ID和章节索引index获取章节对象
@@ -101,5 +102,5 @@ public interface BookService
      * @param chapterIndex
      * @return
      */
-    Chapter getChapter(Long bookId, int chapterIndex);
+    Optional<Chapter> getChapter(Long bookId, int chapterIndex);
 }
