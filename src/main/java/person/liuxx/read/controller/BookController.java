@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.annotations.Api;
@@ -99,12 +101,12 @@ public class BookController
 
     @ApiOperation(value = "添加章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
     @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
-    @PutMapping("/chapter")
+    @PostMapping("/chapter")
     public Chapter saveChapter(@RequestBody Chapter chapter)
     {
         return bookService.saveChapter(chapter).orElseThrow(() ->
         {
-            throw new BookUpdateFailedException("书籍章节添加失败，章节信息：" + chapter.getLogInfo());
+            throw new BookUpdateFailedException("书籍章节添加失败，章节信息：" + chapter.logInfo());
         });
     }
 
@@ -126,11 +128,12 @@ public class BookController
     @ApiOperation(value = "更新章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
     @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
     @PutMapping("/chapter")
+    @ResponseStatus(value = HttpStatus.CREATED)
     public Chapter updateChapter(@RequestBody Chapter chapter)
     {
         return bookService.updateChapter(chapter).orElseThrow(() ->
         {
-            throw new BookUpdateFailedException("书籍章节更新失败，章节信息：" + chapter.getLogInfo());
+            throw new BookUpdateFailedException("书籍章节更新失败，章节信息：" + chapter.logInfo());
         });
     }
 

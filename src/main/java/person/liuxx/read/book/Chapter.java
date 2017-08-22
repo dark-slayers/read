@@ -84,12 +84,13 @@ public class Chapter
     * @since 1.0.0 
     * @return
     */
-    public String getLogInfo()
+    public String logInfo()
     {
         Chapter logChapter = new Chapter();
         logChapter.setBookId(bookId);
         logChapter.setIndex(index);
         logChapter.setTitle(title);
+        
         return JSON.toJSONString(logChapter);
     }
 }

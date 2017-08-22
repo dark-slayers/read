@@ -54,6 +54,23 @@ public class BookServiceImpl implements BookService
     }
 
     /**
+     * 章节对象转为书籍对象
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2017年8月22日 上午10:24:30
+     * @since 1.0.0
+     * @param chapter
+     * @return
+     */
+    private Optional<StorageBook> getStorageBook(Chapter chapter)
+    {
+        return Optional.ofNullable(chapter)
+                .filter(c -> c.getBookId() > 0 && c.getIndex() >= 0)
+                .flatMap(c -> loadStorageBookById(chapter.getBookId()));
+    }
+
+    /**
      * 使用参数的ID，获取本地书籍资源，使用本地书籍资源生成txt文件<br>
      * 返回txt文件资源流
      * 
@@ -132,26 +149,20 @@ public class BookServiceImpl implements BookService
     @Override
     public Optional<Chapter> saveChapter(Chapter chapter)
     {
-        Optional<Chapter> result = Optional.ofNullable(chapter)
-                .filter(c -> c.getBookId() >= 0 && c.getIndex() >= 0)
-                .flatMap(c -> loadStorageBookById(chapter.getBookId()))
-                .map(b ->
-                {
-                    Optional<BookDO> bookDO = getBookDOById(chapter.getBookId());
-                    return bookDO.map(bDO ->
-                    {
-                        b.getTitles().add(chapter.getIndex(), chapter.getTitle());
-                        b.getStories().add(chapter.getIndex(), chapter.getContent());
-                        try
-                        {
-                            b.update(bookDO.orElse(null));
-                        } catch (Exception e)
-                        {
-                            throw new BookSaveFailedException("文件更新失败！", e);
-                        }
-                        return chapter;
-                    }).orElse(null);
-                });
+        log.info("请求添加章节:", chapter.logInfo());
+        Optional<StorageBook> bookOptional = getStorageBook(chapter);
+        Optional<Chapter> result = bookOptional.flatMap(b ->
+        {
+            Optional<BookDO> bookDO = getBookDOById(chapter.getBookId());
+            Optional<Chapter> cp = bookDO.map(bDO ->
+            {
+                b.getTitles().add(chapter.getIndex(), chapter.getTitle());
+                b.getStories().add(chapter.getIndex(), chapter.getContent());
+                b.update(bookDO.orElse(null));
+                return chapter;
+            });
+            return cp;
+        });
         return result;
     }
 
@@ -169,13 +180,7 @@ public class BookServiceImpl implements BookService
             Chapter chapter = b.getChapter(bookId, chapterIndex);
             b.getTitles().remove(chapterIndex);
             b.getStories().remove(chapterIndex);
-            try
-            {
-                b.update(optional.orElse(null));
-            } catch (Exception e)
-            {
-                throw new BookSaveFailedException("文件更新失败！", e);
-            }
+            b.update(optional.orElse(null));
             return chapter;
         });
         return result;
@@ -184,6 +189,20 @@ public class BookServiceImpl implements BookService
     @Override
     public Optional<Chapter> updateChapter(Chapter chapter)
     {
-        return Optional.empty();
+        log.info("请求更新章节:", chapter.logInfo());
+        Optional<StorageBook> bookOptional = getStorageBook(chapter);
+        Optional<Chapter> result = bookOptional.flatMap(b ->
+        {
+            Optional<BookDO> bookDO = getBookDOById(chapter.getBookId());
+            Optional<Chapter> cp = bookDO.map(bDO ->
+            {
+                b.getTitles().set(chapter.getIndex(), chapter.getTitle());
+                b.getStories().set(chapter.getIndex(), chapter.getContent());
+                b.update(bookDO.orElse(null));
+                return chapter;
+            });
+            return cp;
+        });
+        return result;
     }
 }

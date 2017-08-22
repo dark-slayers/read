@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.exception.BookLoadFailedException;
 import person.liuxx.read.exception.BookNotFoundException;
+import person.liuxx.read.exception.BookUpdateFailedException;
 import person.liuxx.util.base.StringUtil;
 
 /**
@@ -92,6 +93,8 @@ public class StorageBook implements Serializable
 
     /**
      * 将book对象保存至指定的path路径，路径内部使用HASH进行三级子目录拆分，返回文件被保存后的存储路径
+     * <p>
+     * 参数path为null抛出NullPointerException
      * 
      * @author 刘湘湘
      * @version 1.0.0<br>
@@ -103,6 +106,7 @@ public class StorageBook implements Serializable
      */
     public Path save(Path path) throws IOException
     {
+        Objects.requireNonNull(path);
         Path targetPath = path.resolve(hashPath(this));
         Path parentPath = targetPath.getParent();
         if (!Files.exists(parentPath))
@@ -186,13 +190,26 @@ public class StorageBook implements Serializable
      * @return
      * @throws IOException
      */
-    public Path update(BookDO bookDO) throws IOException
+    public Path update(BookDO bookDO)
     {
+        if (Objects.isNull(bookDO) || StringUtil.isEmpty(bookDO.getPath()))
+        {
+            throw new BookUpdateFailedException("书籍更新失败，书籍信息：" + bookDO);
+        }
         Path path = Paths.get(bookDO.getPath());
-        Files.delete(path);
+        try
+        {
+            Files.delete(path);
+        } catch (IOException e)
+        {
+            throw new BookUpdateFailedException("书籍更新失败，书籍信息：" + bookDO);
+        }
         try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path));)
         {
             oos.writeObject(this);
+        } catch (IOException e)
+        {
+            throw new BookUpdateFailedException("书籍更新失败，书籍信息：" + bookDO);
         }
         return path;
     }
