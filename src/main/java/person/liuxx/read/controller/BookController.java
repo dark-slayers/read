@@ -125,7 +125,7 @@ public class BookController
         });
     }
 
-    @ApiOperation(value = "更新章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
+    @ApiOperation(value = "更新章节", notes = "根据书籍id和章节索引编号index更新书籍的指定章节内容")
     @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
     @PutMapping("/chapter")
     @ResponseStatus(value = HttpStatus.CREATED)
@@ -146,27 +146,27 @@ public class BookController
         log.error(LogUtil.errorInfo(e));
         switch (e.getClass().getName())
         {
-        case "BookSaveFailedException":
+        case "person.liuxx.read.exception.BookSaveFailedException":
             {
                 return new ErrorResponse(500, 50002, "书籍保存失败", "失败信息：" + LogUtil.errorInfo(e),
                         "more info");
             }
-        case "BookRemoveFailedException":
+        case "person.liuxx.read.exception.BookRemoveFailedException":
             {
                 return new ErrorResponse(500, 50003, "书籍删除失败", "失败信息：" + LogUtil.errorInfo(e),
                         "more info");
             }
-        case "BookUpdateFailedException":
+        case "person.liuxx.read.exception.BookUpdateFailedException":
             {
                 return new ErrorResponse(500, 50004, "书籍更新失败", "失败信息：" + LogUtil.errorInfo(e),
                         "more info");
             }
-        case "BookLoadFailedException":
+        case "person.liuxx.read.exception.BookLoadFailedException":
             {
                 return new ErrorResponse(500, 50005, "书籍加载失败", "失败信息：" + LogUtil.errorInfo(e),
                         "more info");
             }
-        case "BookNotFoundException":
+        case "person.liuxx.read.exception.BookNotFoundException":
             {
                 return new ErrorResponse(404, 40402, "获取书籍失败", "失败信息：" + LogUtil.errorInfo(e),
                         "more info");
