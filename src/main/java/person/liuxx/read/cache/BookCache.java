@@ -66,7 +66,6 @@ public class BookCache
 
     public Optional<StorageBook> getStorageBook(Long id)
     {
-        log.info("加载id为{}的StorageBook对象", id);
         if (Objects.isNull(id))
         {
             log.info("无效的ID参数：{}", id);
@@ -79,7 +78,6 @@ public class BookCache
 
     public Optional<BookDO> getBookDOById(Long id)
     {
-        log.info("从缓存加载id为{}的bookDO", id);
         return bookIndexCache.getUnchecked(id);
     }
 }
