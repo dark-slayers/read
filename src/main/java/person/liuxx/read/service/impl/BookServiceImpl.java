@@ -149,7 +149,7 @@ public class BookServiceImpl implements BookService
     @Override
     public Optional<Chapter> saveChapter(Chapter chapter)
     {
-        log.info("请求添加章节:", chapter.logInfo());
+        log.info("请求添加章节:{}", chapter.logInfo());
         Optional<StorageBook> bookOptional = getStorageBook(chapter);
         Optional<Chapter> result = bookOptional.flatMap(b ->
         {
@@ -189,7 +189,7 @@ public class BookServiceImpl implements BookService
     @Override
     public Optional<Chapter> updateChapter(Chapter chapter)
     {
-        log.info("请求更新章节:", chapter.logInfo());
+        log.info("请求更新章节:{}", chapter.logInfo());
         Optional<StorageBook> bookOptional = getStorageBook(chapter);
         Optional<Chapter> result = bookOptional.flatMap(b ->
         {
