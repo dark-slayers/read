@@ -80,6 +80,7 @@ public class BookController
     @PostMapping("path")
     public BookDO load(@RequestBody BookDTO book)
     {
+        log.info("请求加载书籍：{}", book);
         if (Objects.isNull(book))
         {
             throw new IllegalArgumentException("请求参数不能为空！");
