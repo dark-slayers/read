@@ -78,6 +78,7 @@ public class BookController
     { @ApiImplicitParam(name = "book", value = "书籍信息实体BookDO", required = true,
             dataType = "BookDO") })
     @PostMapping("path")
+    @ResponseStatus(value = HttpStatus.CREATED)
     public BookDO load(@RequestBody BookDTO book)
     {
         log.info("请求加载书籍：{}", book);
