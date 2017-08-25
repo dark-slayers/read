@@ -1,6 +1,7 @@
 package person.liuxx.read.controller;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +26,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.exception.BookLoadFailedException;
 import person.liuxx.read.exception.BookNotFoundException;
 import person.liuxx.read.exception.BookRemoveFailedException;
@@ -76,8 +78,12 @@ public class BookController
     { @ApiImplicitParam(name = "book", value = "书籍信息实体BookDO", required = true,
             dataType = "BookDO") })
     @PostMapping("path")
-    public BookDO load(@RequestBody BookDO book)
+    public BookDO load(@RequestBody BookDTO book)
     {
+        if (Objects.isNull(book))
+        {
+            throw new IllegalArgumentException("请求参数不能为空！");
+        }
         return bookService.loadDir(book).orElseThrow(() ->
         {
             throw new BookLoadFailedException("加载书籍失败，书籍信息：" + book);
@@ -169,6 +175,11 @@ public class BookController
         case "person.liuxx.read.exception.BookNotFoundException":
             {
                 return new ErrorResponse(404, 40402, "获取书籍失败", "失败信息：" + LogUtil.errorInfo(e),
+                        "more info");
+            }
+        case "java.lang.IllegalArgumentException":
+            {
+                return new ErrorResponse(400, 40001, "请求参数格式错误", "失败信息：" + LogUtil.errorInfo(e),
                         "more info");
             }
         default:

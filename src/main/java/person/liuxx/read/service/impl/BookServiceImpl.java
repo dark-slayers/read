@@ -1,6 +1,5 @@
 package person.liuxx.read.service.impl;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -21,7 +20,7 @@ import person.liuxx.read.cache.BookCache;
 import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.domain.BookDO;
-import person.liuxx.read.exception.BookSaveFailedException;
+import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.base.StringUtil;
 
@@ -115,26 +114,33 @@ public class BookServiceImpl implements BookService
     }
 
     @Override
-    public Optional<BookDO> loadDir(BookDO book)
+    public Optional<BookDO> loadDir(BookDTO book)
     {
         log.info("需要添加的book信息：{}", book);
-        StorageBook b = BookFactory.parseDir(Paths.get(book.getPath()), book.getName());
-        try
+        // 如果无法从配置文件中获取存储路径，使用默认路径作为存储路径
+        Path targetPath = (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig
+                .getStoragePath())) ? Paths.get(bookConfig.getStoragePath()) : DEFAULT_STORAGE_PATH;
+        log.info("文件存储路径：{}", targetPath);
+        StorageBook storageBook = null;
+        switch (book.getType())
         {
-            BookDO bookDO = new BookDO();
-            // 如果无法从配置文件中获取存储路径，使用默认路径作为存储路径
-            Path targetPath = (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig
-                    .getStoragePath())) ? Paths.get(bookConfig.getStoragePath())
-                            : DEFAULT_STORAGE_PATH;
-            log.info("文件存储路径：{}", targetPath);
-            bookDO.setPath(b.save(targetPath).toString());
-            bookDO.setName(b.getName());
-            BookDO saveBookDO = bookDao.save(bookDO);
-            return Optional.ofNullable(saveBookDO);
-        } catch (IOException e)
-        {
-            throw new BookSaveFailedException("书籍保存失败：" + book, e);
+        case DIR:
+            {
+                storageBook = BookFactory.parseDir(Paths.get(book.getPath()), book.getName());
+            }
+        default:
+            break;
         }
+        if (Objects.isNull(storageBook))
+        {
+            return Optional.empty();
+        }
+        String path = storageBook.save(targetPath).toString();
+        BookDO bookDO = new BookDO();
+        bookDO.setPath(path);
+        bookDO.setName(storageBook.getName());
+        BookDO saveBookDO = bookDao.save(bookDO);
+        return Optional.ofNullable(saveBookDO);
     }
 
     @Override

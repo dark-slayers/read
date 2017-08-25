@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.dto.BookDTO;
 
 /**
  * @author 刘湘湘
@@ -46,10 +47,10 @@ public interface BookService
      *          创建时间：2017年8月17日 上午10:50:02
      * @since 1.0.0
      * @param book
-     *            书籍信息对象，name字段为书籍名称，path字段为需要解析的文件夹路径
+     *            书籍信息对象，不能为null，name字段为书籍名称，path字段为需要解析的文件夹路径
      * @return 如果解析成功，返回存入数据库的书籍信息，该信息中包含id和书籍的文件路径
      */
-    Optional<BookDO> loadDir(BookDO book);
+    Optional<BookDO> loadDir(BookDTO book);
 
     /**
      * 添加新章节，参数中的index表示插入成功后的章节索引号<br>

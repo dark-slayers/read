@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.exception.BookLoadFailedException;
 import person.liuxx.read.exception.BookNotFoundException;
+import person.liuxx.read.exception.BookSaveFailedException;
 import person.liuxx.read.exception.BookUpdateFailedException;
 import person.liuxx.util.base.StringUtil;
 
@@ -104,18 +105,27 @@ public class StorageBook implements Serializable
      * @return 文件被保存后的实际存储路径
      * @throws IOException
      */
-    public Path save(Path path) throws IOException
+    public Path save(Path path)
     {
         Objects.requireNonNull(path);
         Path targetPath = path.resolve(hashPath(this));
         Path parentPath = targetPath.getParent();
         if (!Files.exists(parentPath))
         {
-            Files.createDirectories(parentPath);
+            try
+            {
+                Files.createDirectories(parentPath);
+            } catch (IOException e)
+            {
+                throw new BookSaveFailedException("书籍保存失败！", e);
+            }
         }
         try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(targetPath));)
         {
             oos.writeObject(this);
+        } catch (IOException e)
+        {
+            throw new BookSaveFailedException("书籍保存失败！", e);
         }
         return targetPath;
     }
