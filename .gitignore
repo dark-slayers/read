@@ -4,10 +4,6 @@ src/main/resources/static/views
 
 ### STS ###
 .apt_generated
-.classpath
-.factorypath
-.project
-.settings
 .springBeans
 
 ### IntelliJ IDEA ###
