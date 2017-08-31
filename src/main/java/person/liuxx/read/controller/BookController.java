@@ -56,7 +56,7 @@ public class BookController
     @GetMapping("/info")
     public BookDO name(@RequestParam(value = "name", defaultValue = "CC") String name)
     {
-        return bookService.getBook(name).orElseThrow(() ->
+        return bookService.getBook(name).<BookNotFoundException> orElseThrow(() ->
         {
             throw new BookNotFoundException("书籍查询失败，书籍名称：" + name);
         });
@@ -67,7 +67,7 @@ public class BookController
     @RequestMapping(value = "/titles/{bookId}", method = RequestMethod.GET)
     public List<String> titleList(@PathVariable Long bookId)
     {
-        return bookService.listBookTitle(bookId).orElseThrow(() ->
+        return bookService.listBookTitle(bookId).<BookNotFoundException> orElseThrow(() ->
         {
             throw new BookNotFoundException("书籍查询失败，书籍id：" + bookId);
         });
@@ -86,7 +86,7 @@ public class BookController
         {
             throw new IllegalArgumentException("请求参数不能为空！");
         }
-        return bookService.loadDir(book).orElseThrow(() ->
+        return bookService.loadDir(book).<BookLoadFailedException> orElseThrow(() ->
         {
             throw new BookLoadFailedException("加载书籍失败，书籍信息：" + book);
         });
@@ -100,11 +100,12 @@ public class BookController
     @GetMapping("/chapter/{bookId}/{chapterIndex}")
     public Chapter chapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
     {
-        return bookService.getChapter(bookId, chapterIndex).orElseThrow(() ->
-        {
-            throw new BookUpdateFailedException("书籍章节获取失败，书籍id：" + bookId + "，章节索引："
-                    + chapterIndex);
-        });
+        return bookService.getChapter(bookId, chapterIndex).<BookUpdateFailedException> orElseThrow(
+                () ->
+                {
+                    throw new BookUpdateFailedException("书籍章节获取失败，书籍id：" + bookId + "，章节索引："
+                            + chapterIndex);
+                });
     }
 
     @ApiOperation(value = "添加章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
@@ -112,7 +113,7 @@ public class BookController
     @PostMapping("/chapter")
     public Chapter saveChapter(@RequestBody Chapter chapter)
     {
-        return bookService.saveChapter(chapter).orElseThrow(() ->
+        return bookService.saveChapter(chapter).<BookUpdateFailedException> orElseThrow(() ->
         {
             throw new BookUpdateFailedException("书籍章节添加失败，章节信息：" + chapter.logInfo());
         });
@@ -126,11 +127,12 @@ public class BookController
     @DeleteMapping("/chapter/{bookId}/{chapterIndex}")
     public Chapter removeChapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
     {
-        return bookService.removeChapter(bookId, chapterIndex).orElseThrow(() ->
-        {
-            throw new BookUpdateFailedException("书籍章节删除失败，书籍id：" + bookId + "，章节索引："
-                    + chapterIndex);
-        });
+        return bookService.removeChapter(bookId, chapterIndex)
+                .<BookUpdateFailedException> orElseThrow(() ->
+                {
+                    throw new BookUpdateFailedException("书籍章节删除失败，书籍id：" + bookId + "，章节索引："
+                            + chapterIndex);
+                });
     }
 
     @ApiOperation(value = "更新章节", notes = "根据书籍id和章节索引编号index更新书籍的指定章节内容")
@@ -139,7 +141,7 @@ public class BookController
     @ResponseStatus(value = HttpStatus.CREATED)
     public Chapter updateChapter(@RequestBody Chapter chapter)
     {
-        return bookService.updateChapter(chapter).orElseThrow(() ->
+        return bookService.updateChapter(chapter).<BookUpdateFailedException> orElseThrow(() ->
         {
             throw new BookUpdateFailedException("书籍章节更新失败，章节信息：" + chapter.logInfo());
         });
