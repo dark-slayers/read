@@ -42,7 +42,7 @@ public class BookResourceController
     public ResponseEntity<Resource> txt(@PathVariable Long id)
     {
         log.info("下载id为{}的书籍...", id);
-        return bookService.getTxtFile(id).orElseThrow(() ->
+        return bookService.getTxtFile(id).<BookNotFoundException>orElseThrow(() ->
         {
             throw new BookNotFoundException("无法下载书籍的txt文件，书籍名称：" + id);
         });

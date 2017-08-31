@@ -1,9 +1,12 @@
 package person.liuxx.read.book;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 import person.liuxx.read.page.StoryPage;
 import person.liuxx.read.page.TitlePage;
 import person.liuxx.util.file.FileUtil;
+import person.liuxx.util.log.LogUtil;
 
 /**
  * @author 刘湘湘
@@ -67,6 +71,34 @@ public final class BookFactory
             }
         });
         StorageBook book = new StorageBook(bookName, titleList, stories);
+        return book;
+    }
+
+    /**
+     * 解析单个txt文件
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2017年8月31日 下午3:02:27
+     * @since 1.0.0
+     * @param path
+     * @param name
+     * @return
+     */
+    public static StorageBook parseTxt(Path path, String name)
+    {
+        List<String> titleList = new LinkedList<>();
+        titleList.add(name);
+        List<String> stories = new LinkedList<>();
+        try
+        {
+            String story = Files.lines(path).collect(Collectors.joining("\n"));
+            stories.add(story);
+        } catch (IOException e)
+        {
+            log.error(LogUtil.errorInfo(e));
+        }
+        StorageBook book = new StorageBook(name, titleList, stories);
         return book;
     }
 }
