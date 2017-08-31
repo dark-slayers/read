@@ -127,10 +127,13 @@ public class BookServiceImpl implements BookService
         case DIR:
             {
                 storageBook = BookFactory.parseDir(Paths.get(book.getPath()), book.getName());
+                break;
             }
-        case TXT_FILE:{
-            storageBook = BookFactory.parseTxt(Paths.get(book.getPath()), book.getName());
-        }
+        case TXT_FILE:
+            {
+                storageBook = BookFactory.parseTxt(Paths.get(book.getPath()), book.getName());
+                break;
+            }
         default:
             break;
         }
