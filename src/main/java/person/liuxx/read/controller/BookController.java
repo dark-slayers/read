@@ -73,10 +73,10 @@ public class BookController
         });
     }
 
-    @ApiOperation(value = "请求服务器添加服务器磁盘存储的书籍", notes = "解析传来的BookDO信息，使用path信息和name信息增加新的book")
+    @ApiOperation(value = "请求服务器添加服务器磁盘存储的书籍", notes = "解析传来的BookDTO信息，增加新的book")
     @ApiImplicitParams(
-    { @ApiImplicitParam(name = "book", value = "书籍信息实体BookDO", required = true,
-            dataType = "BookDO") })
+    { @ApiImplicitParam(name = "book", value = "书籍信息实体BookDTO", required = true,
+            dataType = "BookDTO") })
     @PostMapping("path")
     @ResponseStatus(value = HttpStatus.CREATED)
     public BookDO load(@RequestBody BookDTO book)
