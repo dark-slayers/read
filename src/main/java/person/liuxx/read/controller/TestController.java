@@ -1,12 +1,12 @@
 package person.liuxx.read.controller;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.nio.file.Paths;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.StorageBook;
 import person.liuxx.read.service.impl.BookServiceImpl;
 import springfox.documentation.annotations.ApiIgnore;
@@ -25,25 +25,10 @@ public class TestController
     BookServiceImpl bookService;
 
     @RequestMapping("/test")
-    public List<String> greeting()
+    public String greeting()
     {
-        return save();
+        StorageBook book = BookFactory.parseDir(Paths.get("F:/Book/000006"), "123");
+        return "Test Over !\n" + book.getTitles();
     }
 
-    List<String> save()
-    {
-        return new ArrayList<>();
-    }
-
-    List<String> bookTest(StorageBook book)
-    {
-        List<String> result = new ArrayList<>();
-        int index = 1;
-        result.add(book.getTitles().get(index));
-        result.add(book.getStories().get(index));
-        index = 2;
-        result.add(book.getTitles().get(index));
-        result.add(book.getStories().get(index));
-        return result;
-    }
 }
