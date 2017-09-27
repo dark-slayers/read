@@ -29,10 +29,9 @@ import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.exception.BookLoadFailedException;
 import person.liuxx.read.exception.BookNotFoundException;
-import person.liuxx.read.exception.BookRemoveFailedException;
-import person.liuxx.read.exception.BookSaveFailedException;
 import person.liuxx.read.exception.BookUpdateFailedException;
 import person.liuxx.read.service.BookService;
+import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
 import person.liuxx.util.service.reponse.ErrorResponse;
 
@@ -82,9 +81,9 @@ public class BookController
     public BookDO load(@RequestBody BookDTO book)
     {
         log.info("请求加载书籍：{}", book);
-        if (Objects.isNull(book))
+        if (Objects.isNull(book) || StringUtil.isAnyEmpty(book.getName(), book.getPath()))
         {
-            throw new IllegalArgumentException("请求参数不能为空！");
+            throw new IllegalArgumentException("请求参数中，书籍名称和书籍路径都不可以为空！");
         }
         return bookService.loadDir(book).<BookLoadFailedException> orElseThrow(() ->
         {
@@ -148,9 +147,7 @@ public class BookController
     }
 
     @ExceptionHandler(
-    { BookSaveFailedException.class, BookRemoveFailedException.class,
-            BookUpdateFailedException.class, BookLoadFailedException.class,
-            BookNotFoundException.class })
+    { Exception.class })
     public ErrorResponse exceptionHandler(Exception e)
     {
         log.error(LogUtil.errorInfo(e));
