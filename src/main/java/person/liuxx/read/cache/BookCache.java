@@ -13,7 +13,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import person.liuxx.read.book.StorageBook;
+import person.liuxx.read.book.impl.StorageBook;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.domain.BookDO;
 

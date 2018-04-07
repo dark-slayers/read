@@ -25,6 +25,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import person.liuxx.read.book.Chapter;
+import person.liuxx.read.book.impl.StoreChapter;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.exception.BookLoadFailedException;
@@ -110,7 +111,7 @@ public class BookController
     @ApiOperation(value = "添加章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
     @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
     @PostMapping("/chapter")
-    public Chapter saveChapter(@RequestBody Chapter chapter)
+    public StoreChapter saveChapter(@RequestBody StoreChapter chapter)
     {
         return bookService.saveChapter(chapter).<BookUpdateFailedException> orElseThrow(() ->
         {
@@ -124,7 +125,7 @@ public class BookController
             @ApiImplicitParam(name = "chapterIndex", value = "章节索引编号", required = true,
                     dataType = "int") })
     @DeleteMapping("/chapter/{bookId}/{chapterIndex}")
-    public Chapter removeChapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
+    public StoreChapter removeChapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
     {
         return bookService.removeChapter(bookId, chapterIndex)
                 .<BookUpdateFailedException> orElseThrow(() ->
@@ -138,7 +139,7 @@ public class BookController
     @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
     @PutMapping("/chapter")
     @ResponseStatus(value = HttpStatus.CREATED)
-    public Chapter updateChapter(@RequestBody Chapter chapter)
+    public StoreChapter updateChapter(@RequestBody StoreChapter chapter)
     {
         return bookService.updateChapter(chapter).<BookUpdateFailedException> orElseThrow(() ->
         {

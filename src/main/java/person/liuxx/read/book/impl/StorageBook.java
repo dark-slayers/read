@@ -1,4 +1,4 @@
-package person.liuxx.read.book;
+package person.liuxx.read.book.impl;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +21,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
+import person.liuxx.read.book.Book;
+import person.liuxx.read.book.Chapter;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.exception.BookLoadFailedException;
 import person.liuxx.read.exception.BookNotFoundException;
@@ -34,7 +36,7 @@ import person.liuxx.util.base.StringUtil;
  *          创建时间：2017年7月28日 下午2:12:46
  * @since 1.0.0
  */
-public class StorageBook implements Serializable
+public class StorageBook implements Serializable, Book
 {
     private static final long serialVersionUID = 1698294675972351331L;
     private String name;
@@ -82,9 +84,9 @@ public class StorageBook implements Serializable
         this.stories = stories;
     }
 
-    public Chapter getChapter(Long bookId, int index)
+    public StoreChapter getChapter(Long bookId, int index)
     {
-        Chapter c = new Chapter();
+        StoreChapter c = new StoreChapter();
         c.setBookId(bookId);
         c.setIndex(index);
         c.setTitle(getTitles().get(index));
@@ -120,7 +122,8 @@ public class StorageBook implements Serializable
                 throw new BookSaveFailedException("书籍保存失败！", e);
             }
         }
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(targetPath));)
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(
+                targetPath));)
         {
             oos.writeObject(this);
         } catch (IOException e)
@@ -152,8 +155,8 @@ public class StorageBook implements Serializable
         // 创建当hash码长度不足三位时用来补位的流
         Stream<String> supplyStream = Stream.of("0", "0", "0");
         // 合并两个流，截取前三位，使用系统路径分隔符进行合并
-        String subPath = Stream.concat(stream, supplyStream).limit(3).collect(Collectors.joining(
-                File.separator));
+        String subPath = Stream.concat(stream, supplyStream).limit(3).collect(Collectors
+                .joining(File.separator));
         return Paths.get(subPath, bookName + ".book");
     }
 
@@ -179,7 +182,8 @@ public class StorageBook implements Serializable
         }
         Path targetPath = Paths.get(bookDO.getPath());
         StorageBook book = null;
-        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(targetPath)))
+        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(
+                targetPath)))
         {
             book = (StorageBook) ois.readObject();
         } catch (IOException | ClassNotFoundException e)
@@ -214,7 +218,8 @@ public class StorageBook implements Serializable
         {
             throw new BookUpdateFailedException("书籍更新失败，书籍信息：" + bookDO);
         }
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path));)
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(
+                path));)
         {
             oos.writeObject(this);
         } catch (IOException e)
@@ -255,10 +260,11 @@ public class StorageBook implements Serializable
             Resource resource = new UrlResource(outPath.toUri());
             if (resource.exists() || resource.isReadable())
             {
-                String contentDisposition = "attachment; filename=\"" + getName() + ".txt\"";
+                String contentDisposition = "attachment; filename=\"" + getName()
+                        + ".txt\"";
                 return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, new String(contentDisposition
-                                .getBytes("UTF-8"), "ISO8859-1"))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, new String(
+                                contentDisposition.getBytes("UTF-8"), "ISO8859-1"))
                         .body(resource);
             } else
             {
@@ -268,5 +274,19 @@ public class StorageBook implements Serializable
         {
             throw new BookNotFoundException("Book not found", e);
         }
+    }
+
+    @Override
+    public List<Chapter> getChapters()
+    {
+        // TODO 自动生成的方法存根
+        return null;
+    }
+
+    @Override
+    public Chapter getChapter(int index)
+    {
+        // TODO 自动生成的方法存根
+        return null;
     }
 }

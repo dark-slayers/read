@@ -15,7 +15,8 @@ import org.springframework.stereotype.Service;
 
 import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
-import person.liuxx.read.book.StorageBook;
+import person.liuxx.read.book.impl.StoreChapter;
+import person.liuxx.read.book.impl.StorageBook;
 import person.liuxx.read.cache.BookCache;
 import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
@@ -62,7 +63,7 @@ public class BookServiceImpl implements BookService
      * @param chapter
      * @return
      */
-    private Optional<StorageBook> getStorageBook(Chapter chapter)
+    private Optional<StorageBook> getStorageBook(StoreChapter chapter)
     {
         return Optional.ofNullable(chapter)
                 .filter(c -> c.getBookId() > 0 && c.getIndex() >= 0)
@@ -119,19 +120,22 @@ public class BookServiceImpl implements BookService
         log.info("需要添加的book信息：{}", book);
         // 如果无法从配置文件中获取存储路径，使用默认路径作为存储路径
         Path targetPath = (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig
-                .getStoragePath())) ? Paths.get(bookConfig.getStoragePath()) : DEFAULT_STORAGE_PATH;
+                .getStoragePath())) ? Paths.get(bookConfig.getStoragePath())
+                        : DEFAULT_STORAGE_PATH;
         log.info("文件存储路径：{}", targetPath);
         StorageBook storageBook = null;
         switch (book.getType())
         {
         case DIR:
             {
-                storageBook = BookFactory.parseDir(Paths.get(book.getPath()), book.getName());
+                storageBook = BookFactory.parseDir(Paths.get(book.getPath()), book
+                        .getName());
                 break;
             }
         case TXT_FILE:
             {
-                storageBook = BookFactory.parseTxt(Paths.get(book.getPath()), book.getName());
+                storageBook = BookFactory.parseTxt(Paths.get(book.getPath()), book
+                        .getName());
                 break;
             }
         default:
@@ -154,21 +158,22 @@ public class BookServiceImpl implements BookService
     {
         log.info("查询书籍id为{}，章节索引为{}的章节", bookId, chapterIndex);
         Optional<StorageBook> bookOption = loadStorageBookById(bookId);
-        Optional<Chapter> chapter = bookOption.map(b -> b.getChapter(bookId, chapterIndex));
+        Optional<Chapter> chapter = bookOption.map(b -> b.getChapter(bookId,
+                chapterIndex));
         return chapter;
     }
 
     @Override
-    public Optional<Chapter> saveChapter(Chapter chapter)
+    public Optional<StoreChapter> saveChapter(StoreChapter chapter)
     {
         log.info("请求添加章节:{}", chapter.logInfo());
         Optional<StorageBook> bookOptional = getStorageBook(chapter);
-        Optional<Chapter> result = bookOptional.flatMap(b ->
+        Optional<StoreChapter> result = bookOptional.flatMap(b ->
         {
             Optional<BookDO> bookDO = getBookDOById(chapter.getBookId());
-            Optional<Chapter> cp = bookDO.map(bDO ->
+            Optional<StoreChapter> cp = bookDO.map(bDO ->
             {
-                b.getTitles().add(chapter.getIndex(), chapter.getTitle());
+                b.getTitles().add(chapter.getIndex(), chapter.getTitleName());
                 b.getStories().add(chapter.getIndex(), chapter.getContent());
                 b.update(bookDO.orElse(null));
                 return chapter;
@@ -179,17 +184,18 @@ public class BookServiceImpl implements BookService
     }
 
     @Override
-    public Optional<Chapter> removeChapter(Long bookId, int chapterIndex)
+    public Optional<StoreChapter> removeChapter(Long bookId, int chapterIndex)
     {
         log.info("请求删除id为{}的书籍中，索引为{}的章节", bookId, chapterIndex);
         Optional<BookDO> optional = getBookDOById(bookId);
         Optional<StorageBook> bookOptional = loadStorageBookById(bookId);
-        Optional<Chapter> result = bookOptional.filter(b ->
+        Optional<StoreChapter> result = bookOptional.filter(b ->
         {
-            return b.getTitles().size() > chapterIndex && b.getStories().size() > chapterIndex;
+            return b.getTitles().size() > chapterIndex && b.getStories()
+                    .size() > chapterIndex;
         }).map(b ->
         {
-            Chapter chapter = b.getChapter(bookId, chapterIndex);
+            StoreChapter chapter = b.getChapter(bookId, chapterIndex);
             b.getTitles().remove(chapterIndex);
             b.getStories().remove(chapterIndex);
             b.update(optional.orElse(null));
@@ -199,16 +205,16 @@ public class BookServiceImpl implements BookService
     }
 
     @Override
-    public Optional<Chapter> updateChapter(Chapter chapter)
+    public Optional<StoreChapter> updateChapter(StoreChapter chapter)
     {
         log.info("请求更新章节:{}", chapter.logInfo());
         Optional<StorageBook> bookOptional = getStorageBook(chapter);
-        Optional<Chapter> result = bookOptional.flatMap(b ->
+        Optional<StoreChapter> result = bookOptional.flatMap(b ->
         {
             Optional<BookDO> bookDO = getBookDOById(chapter.getBookId());
-            Optional<Chapter> cp = bookDO.map(bDO ->
+            Optional<StoreChapter> cp = bookDO.map(bDO ->
             {
-                b.getTitles().set(chapter.getIndex(), chapter.getTitle());
+                b.getTitles().set(chapter.getIndex(), chapter.getTitleName());
                 b.getStories().set(chapter.getIndex(), chapter.getContent());
                 b.update(bookDO.orElse(null));
                 return chapter;

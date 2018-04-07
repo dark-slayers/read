@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import person.liuxx.read.book.Chapter;
+import person.liuxx.read.book.impl.StoreChapter;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.dto.BookDTO;
 
@@ -62,7 +63,7 @@ public interface BookService
      * @since 1.0.0
      * @return
      */
-    Optional<Chapter> saveChapter(Chapter chapter);
+    Optional<StoreChapter> saveChapter(StoreChapter chapter);
 
     /**
      * 删除指定书籍的指定章节
@@ -78,7 +79,7 @@ public interface BookService
      * @return 被删除的章节信息，如果删除失败，返回一个空白章节（书籍id和索引id都为-1）<br>
      *         如果更新本地文件时发生异常，抛出BookSaveFailedException
      */
-    Optional<Chapter> removeChapter(Long bookId, int chapterIndex);
+    Optional<StoreChapter> removeChapter(Long bookId, int chapterIndex);
 
     /**
      * 使用参数信息，更新指定章节
@@ -90,7 +91,7 @@ public interface BookService
      * @param chapter
      * @return
      */
-    Optional<Chapter> updateChapter(Chapter chapter);
+    Optional<StoreChapter> updateChapter(StoreChapter chapter);
 
     /**
      * 使用书籍ID和章节索引index获取章节对象

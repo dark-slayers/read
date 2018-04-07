@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import person.liuxx.read.book.impl.StorageBook;
 import person.liuxx.read.page.StoryPage;
 import person.liuxx.read.page.TitlePage;
 import person.liuxx.util.file.FileUtil;

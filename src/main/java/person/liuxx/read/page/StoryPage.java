@@ -1,7 +1,6 @@
 package person.liuxx.read.page;
 
 import java.nio.file.Path;
-import java.util.Objects;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -23,12 +22,7 @@ public class StoryPage extends WebPage
         super(path);
         Document doc = Jsoup.parse(changeHtmlNewline(getSource()));
         Element content = doc.getElementById("content");
-        if (Objects.nonNull(content))
-        {
-            story = content.text().replaceAll(NEWLINE, "\n");
-        }else{
-            story ="章节缺失！";
-        }
+        story = content.text().replaceAll(NEWLINE, "\n");
     }
 
     public String getStory()
