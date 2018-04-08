@@ -1,5 +1,6 @@
 package person.liuxx.read.book;
 
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -56,4 +57,17 @@ public interface Book
      * @return
      */
     Chapter getChapter(int index);
+
+    /**
+     * 将对象保存至本地目标文件夹
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月8日 上午11:48:35
+     * @since 1.0.0
+     * @param dir
+     *            目标文件夹
+     * @return 保存后的路径的字符串表示
+     */
+    String save(Path dir);
 }

@@ -107,7 +107,7 @@ public class StorageBook implements Serializable, Book
      * @return 文件被保存后的实际存储路径
      * @throws IOException
      */
-    public Path save(Path path)
+    public String save(Path path)
     {
         Objects.requireNonNull(path);
         Path targetPath = path.resolve(hashPath(this));
@@ -129,7 +129,7 @@ public class StorageBook implements Serializable, Book
         {
             throw new BookSaveFailedException("书籍保存失败！", e);
         }
-        return targetPath;
+        return targetPath.toString();
     }
 
     /**

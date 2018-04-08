@@ -3,25 +3,26 @@ package person.liuxx.read.service.impl;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import person.liuxx.read.book.Book;
 import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
-import person.liuxx.read.book.impl.StoreChapter;
 import person.liuxx.read.book.impl.StorageBook;
+import person.liuxx.read.book.impl.StoreChapter;
 import person.liuxx.read.cache.BookCache;
 import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.dto.BookDTO;
+import person.liuxx.read.service.BookParseService;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.base.StringUtil;
 
@@ -34,7 +35,7 @@ import person.liuxx.util.base.StringUtil;
 @Service
 public class BookServiceImpl implements BookService
 {
-    private Logger log = LogManager.getLogger();
+    private Logger log = LoggerFactory.getLogger(BookServiceImpl.class);
     private final static Path DEFAULT_STORAGE_PATH = Paths.get("F:\\Book\\Storage");
     @Autowired
     private BookConfig bookConfig;
@@ -42,6 +43,8 @@ public class BookServiceImpl implements BookService
     private BookRepository bookDao;
     @Autowired
     private BookCache bookCache;
+    @Autowired
+    private BookParseService bookParseService;
 
     private Optional<StorageBook> loadStorageBookById(Long id)
     {
@@ -119,36 +122,18 @@ public class BookServiceImpl implements BookService
     {
         log.info("需要添加的book信息：{}", book);
         // 如果无法从配置文件中获取存储路径，使用默认路径作为存储路径
-        Path targetPath = (Objects.nonNull(bookConfig) && !StringUtil.isEmpty(bookConfig
-                .getStoragePath())) ? Paths.get(bookConfig.getStoragePath())
-                        : DEFAULT_STORAGE_PATH;
+        Path targetPath = Optional.ofNullable(bookConfig)
+                .map(c -> c.getStoragePath())
+                .filter(p -> !StringUtil.isEmpty(p))
+                .map(p -> Paths.get(p))
+                .orElse(DEFAULT_STORAGE_PATH);
         log.info("文件存储路径：{}", targetPath);
-        StorageBook storageBook = null;
-        switch (book.getType())
-        {
-        case DIR:
-            {
-                storageBook = BookFactory.parseDir(Paths.get(book.getPath()), book
-                        .getName());
-                break;
-            }
-        case TXT_FILE:
-            {
-                storageBook = BookFactory.parseTxt(Paths.get(book.getPath()), book
-                        .getName());
-                break;
-            }
-        default:
-            break;
-        }
-        if (Objects.isNull(storageBook))
-        {
-            return Optional.empty();
-        }
-        String path = storageBook.save(targetPath).toString();
+        List<Chapter> list = bookParseService.parseDir(Paths.get(book.getPath()));
+        Book b = BookFactory.createBook(book.getName(), list);
+        String path = b.save(targetPath);
         BookDO bookDO = new BookDO();
         bookDO.setPath(path);
-        bookDO.setName(storageBook.getName());
+        bookDO.setName(b.getName());
         BookDO saveBookDO = bookDao.save(bookDO);
         return Optional.ofNullable(saveBookDO);
     }
@@ -158,8 +143,7 @@ public class BookServiceImpl implements BookService
     {
         log.info("查询书籍id为{}，章节索引为{}的章节", bookId, chapterIndex);
         Optional<StorageBook> bookOption = loadStorageBookById(bookId);
-        Optional<Chapter> chapter = bookOption.map(b -> b.getChapter(bookId,
-                chapterIndex));
+        Optional<Chapter> chapter = bookOption.map(b -> b.getChapter(bookId, chapterIndex));
         return chapter;
     }
 
@@ -191,8 +175,7 @@ public class BookServiceImpl implements BookService
         Optional<StorageBook> bookOptional = loadStorageBookById(bookId);
         Optional<StoreChapter> result = bookOptional.filter(b ->
         {
-            return b.getTitles().size() > chapterIndex && b.getStories()
-                    .size() > chapterIndex;
+            return b.getTitles().size() > chapterIndex && b.getStories().size() > chapterIndex;
         }).map(b ->
         {
             StoreChapter chapter = b.getChapter(bookId, chapterIndex);
