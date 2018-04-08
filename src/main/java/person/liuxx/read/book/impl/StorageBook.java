@@ -38,7 +38,7 @@ import person.liuxx.util.base.StringUtil;
  */
 public class StorageBook implements Serializable, Book
 {
-    private static final long serialVersionUID = 1698294675972351331L;
+    private static final long serialVersionUID = -1680376523158503740L;
     private String name;
     private List<String> titles;
     private List<String> stories;
@@ -122,8 +122,7 @@ public class StorageBook implements Serializable, Book
                 throw new BookSaveFailedException("书籍保存失败！", e);
             }
         }
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(
-                targetPath));)
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(targetPath));)
         {
             oos.writeObject(this);
         } catch (IOException e)
@@ -155,8 +154,8 @@ public class StorageBook implements Serializable, Book
         // 创建当hash码长度不足三位时用来补位的流
         Stream<String> supplyStream = Stream.of("0", "0", "0");
         // 合并两个流，截取前三位，使用系统路径分隔符进行合并
-        String subPath = Stream.concat(stream, supplyStream).limit(3).collect(Collectors
-                .joining(File.separator));
+        String subPath = Stream.concat(stream, supplyStream).limit(3).collect(Collectors.joining(
+                File.separator));
         return Paths.get(subPath, bookName + ".book");
     }
 
@@ -182,8 +181,7 @@ public class StorageBook implements Serializable, Book
         }
         Path targetPath = Paths.get(bookDO.getPath());
         StorageBook book = null;
-        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(
-                targetPath)))
+        try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(targetPath)))
         {
             book = (StorageBook) ois.readObject();
         } catch (IOException | ClassNotFoundException e)
@@ -218,8 +216,7 @@ public class StorageBook implements Serializable, Book
         {
             throw new BookUpdateFailedException("书籍更新失败，书籍信息：" + bookDO);
         }
-        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(
-                path));)
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(path));)
         {
             oos.writeObject(this);
         } catch (IOException e)
@@ -260,11 +257,10 @@ public class StorageBook implements Serializable, Book
             Resource resource = new UrlResource(outPath.toUri());
             if (resource.exists() || resource.isReadable())
             {
-                String contentDisposition = "attachment; filename=\"" + getName()
-                        + ".txt\"";
+                String contentDisposition = "attachment; filename=\"" + getName() + ".txt\"";
                 return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, new String(
-                                contentDisposition.getBytes("UTF-8"), "ISO8859-1"))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, new String(contentDisposition
+                                .getBytes("UTF-8"), "ISO8859-1"))
                         .body(resource);
             } else
             {
