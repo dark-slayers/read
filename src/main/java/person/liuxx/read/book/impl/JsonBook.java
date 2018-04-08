@@ -22,17 +22,17 @@ import person.liuxx.read.exception.BookSaveFailedException;
  */
 public class JsonBook implements Book
 {
-    private String name;
-    private List<Chapter> list;
+    private final String name;
+    private final List<Chapter> chapters;
 
     /**
      * @param bookName
      * @param stories
      */
-    public JsonBook(String bookName, List<Chapter> list)
+    public JsonBook(String bookName, List<Chapter> chapters)
     {
         this.name = bookName;
-        this.list = list;
+        this.chapters = chapters;
     }
 
     @Override
@@ -44,19 +44,19 @@ public class JsonBook implements Book
     @Override
     public List<String> getTitles()
     {
-        return list.stream().map(c -> c.getTitleName()).collect(Collectors.toList());
+        return chapters.stream().map(c -> c.getTitleName()).collect(Collectors.toList());
     }
 
     @Override
     public List<Chapter> getChapters()
     {
-        return list;
+        return chapters;
     }
 
     @Override
     public Chapter getChapter(int index)
     {
-        return list.get(index);
+        return chapters.get(index);
     }
 
     @Override
@@ -68,16 +68,16 @@ public class JsonBook implements Book
         String text = JSON.toJSONString(this);
         List<String> list = new ArrayList<>();
         list.add(text);
-        if (!Files.exists(parentPath))
+        try
         {
-            try
+            if (!Files.exists(parentPath))
             {
                 Files.createDirectories(parentPath);
-                Files.write(targetPath, list);
-            } catch (IOException e)
-            {
-                throw new BookSaveFailedException("书籍保存失败！", e);
             }
+            Files.write(targetPath, list);
+        } catch (IOException e)
+        {
+            throw new BookSaveFailedException("书籍保存失败！", e);
         }
         return targetPath.toString();
     }

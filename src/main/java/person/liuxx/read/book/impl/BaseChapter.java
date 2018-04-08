@@ -30,4 +30,10 @@ public class BaseChapter implements Chapter
     {
         return content;
     }
+
+    @Override
+    public String toString()
+    {
+        return "BaseChapter [titleName=" + titleName + ", content=" + content + "]";
+    }
 }

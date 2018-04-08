@@ -12,8 +12,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import person.liuxx.read.book.impl.JsonBook;
 import person.liuxx.read.book.impl.StorageBook;
@@ -35,7 +35,7 @@ public final class BookFactory
         throw new AssertionError("工具类禁止实例化！");
     }
 
-    private static Logger log = LogManager.getLogger();
+    private static Logger log = LoggerFactory.getLogger(BookFactory.class);
 
     public static Book createBook(String bookName, List<Chapter> stories)
     {
@@ -52,7 +52,8 @@ public final class BookFactory
      * @version 1.0.0<br>
      *          创建时间：2018年4月8日 下午2:56:15
      * @since 1.0.0
-     * @param bookName 文件名
+     * @param bookName
+     *            文件名
      * @return
      */
     public static Path hashPath(String bookName)
@@ -66,7 +67,9 @@ public final class BookFactory
         // 合并两个流，截取前三位，使用系统路径分隔符进行合并
         String subPath = Stream.concat(stream, supplyStream).limit(3).collect(Collectors.joining(
                 File.separator));
-        return Paths.get(subPath, bookName + ".json");
+        Path result = Paths.get(subPath, bookName + ".json");
+        log.debug("hash路径：{}", result);
+        return result;
     }
 
     /**

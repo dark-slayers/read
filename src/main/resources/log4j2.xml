@@ -2,7 +2,9 @@
 <configuration status="error">
 	<Properties>
 		<Property name="log_dir">D:/logs/read</Property>
-		<Property name="log_text">%d{yyyy-MM-dd 'at' HH:mm:ss SSS} [%-5level] %class{36} (%M) :%L -> %msg%xEx%n</Property>
+		<Property name="log_date">%d{yy-MM-dd 'at' HH:mm:ss SSS}</Property>
+		<Property name="log_content">[%-5level] %class{36} (%M) :%L -> %msg%xEx%n</Property>
+		<Property name="log_text">${log_date} ${log_content}</Property>
 	</Properties>
 	<appenders>
 		<!--输出控制台的配置 -->
@@ -10,15 +12,14 @@
 			name="Console"
 			target="SYSTEM_OUT">
 			<!--输出日志的格式 -->
-			<PatternLayout
-				pattern="%d{HH:mm:ss.SSS} [%-5level] %class{36} (%M) :%L -> %msg%xEx%n" />
+			<PatternLayout pattern="%d{HH:mm:ss.SSS} ${log_content}" />
 		</Console>
 		<!--这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档 -->
 		<RollingFile
 			name="DebugFile"
 			fileName="${log_dir}/DEBUG.log"
 			filePattern="${log_dir}/%d{yyyy-MM}/DEBUG-%d{MM-dd-yyyy}-%i.log.gz">
-			<PatternLayout                       
+			<PatternLayout
 				charset="UTF-8"
 				pattern="${log_text}" />
 			<SizeBasedTriggeringPolicy size="100MB" />
@@ -57,31 +58,34 @@
 			name="org.hibernate"
 			level="WARN"
 			additivity="false">
-			<AppenderRef ref="DebugFile" />
-			<AppenderRef ref="InfoFile" />
-			<AppenderRef ref="WarnFile" />
 			<AppenderRef
 				ref="ErrorFile"
-				level="ERROR" />
+				level="ERROR"/>
 			<AppenderRef
 				ref="Console"
-				level="INFO" />
+				level="INFO"/>
 		</Logger>
 		<Logger
 			name="org.springframework"
 			level="WARN"
-			additivity="false">
-			<AppenderRef ref="DebugFile" />
-			<AppenderRef ref="InfoFile" />
-			<AppenderRef ref="WarnFile" />
-			<AppenderRef
-				ref="ErrorFile"
-				level="ERROR" />
-			<AppenderRef
-				ref="Console"
-				level="INFO" />
-		</Logger>
-		<Root level="DEBUG">
+			additivity="false" />
+		<Logger
+			name="com.alibaba"
+			level="WARN"
+			additivity="false" />
+		<Logger
+			name="druid"
+			level="WARN"
+			additivity="false" />
+		<Logger
+			name="springfox.documentation"
+			level="WARN"
+			additivity="false" />
+		<Logger
+			name="org.apache"
+			level="WARN"
+			additivity="false" />
+		<Root level="DEBUG" additivity="false">
 			<AppenderRef ref="DebugFile" />
 			<AppenderRef
 				ref="InfoFile"
