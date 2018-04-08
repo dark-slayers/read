@@ -86,7 +86,7 @@ public class BookController
         {
             throw new IllegalArgumentException("请求参数中，书籍名称和书籍路径都不可以为空！");
         }
-        return bookService.loadDir(book).<BookLoadFailedException> orElseThrow(() ->
+        return bookService.parseAndSave(book).<BookLoadFailedException> orElseThrow(() ->
         {
             throw new BookLoadFailedException("加载书籍失败，书籍信息：" + book);
         });

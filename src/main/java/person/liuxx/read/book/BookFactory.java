@@ -7,7 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,11 +16,12 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.alibaba.fastjson.JSON;
+
 import person.liuxx.read.book.impl.JsonBook;
 import person.liuxx.read.book.impl.StorageBook;
-import person.liuxx.read.page.StoryPage;
-import person.liuxx.read.page.TitlePage;
-import person.liuxx.util.file.FileUtil;
+import person.liuxx.read.domain.BookDO;
+import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
 
 /**
@@ -73,49 +75,6 @@ public final class BookFactory
     }
 
     /**
-     * 解析本地文件夹，将文件夹中的多个html文件解析为一个Book对象
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年7月28日 下午2:30:52
-     * @since 1.0.0
-     * @param path
-     * @return
-     */
-    public static StorageBook parseDir(Path path, String bookName)
-    {
-        List<String> titleList = new LinkedList<>();
-        List<String> stories = new LinkedList<>();
-        TitlePage titlePage = new TitlePage(path);
-        Map<String, String> map = titlePage.getMap();
-        map.keySet().forEach(key ->
-        {
-            log.info("获取章节名称：{}", key);
-            String linkHref = map.get(key);
-            log.info("章节《{}》对应的文件路径：{}", key, linkHref);
-            Path p = path.resolve(linkHref);
-            log.info("解析链接指向的文件：{}", p);
-            if (FileUtil.existsFile(p))
-            {
-                if (p.toFile().length() < 100)
-                {
-                    log.error("文件<{}>为空！", p);
-                } else
-                {
-                    titleList.add(key);
-                    StoryPage page = new StoryPage(p);
-                    stories.add(page.getStory());
-                }
-            } else
-            {
-                log.error("文件<{}>不存在！", p);
-            }
-        });
-        StorageBook book = new StorageBook(bookName, titleList, stories);
-        return book;
-    }
-
-    /**
      * 解析单个txt文件
      * 
      * @author 刘湘湘
@@ -141,5 +100,32 @@ public final class BookFactory
         }
         StorageBook book = new StorageBook(name, titleList, stories);
         return book;
+    }
+
+    /**
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月8日 下午5:23:50
+     * @since 1.0.0
+     * @param key
+     * @return
+     */
+    public static Optional<Book> load(BookDO bookDO)
+    {
+        if (Objects.isNull(bookDO) || StringUtil.isEmpty(bookDO.getPath()))
+        {
+            return Optional.empty();
+        }
+        Path targetPath = Paths.get(bookDO.getPath());
+        JsonBook book = null;
+        try
+        {
+            String text = Files.lines(targetPath).collect(Collectors.joining());
+            book = JSON.parseObject(text, JsonBook.class);
+        } catch (IOException e)
+        {
+            log.error(LogUtil.errorInfo(e));
+        }
+        return Optional.ofNullable(book);
     }
 }

@@ -13,7 +13,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-import person.liuxx.read.book.impl.StorageBook;
+import person.liuxx.read.book.Book;
+import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.domain.BookDO;
 
@@ -29,7 +30,7 @@ public class BookCache
     private Logger log = LogManager.getLogger();
     @Autowired
     private BookRepository bookDao;
-    LoadingCache<BookDO, Optional<StorageBook>> bookCache;
+    LoadingCache<BookDO, Optional<Book>> bookCache;
     LoadingCache<Long, Optional<BookDO>> bookIndexCache;
     // 缓存的最大对象数量
     private final int MAX_BOOK_NUMBER = 5;
@@ -53,18 +54,18 @@ public class BookCache
         bookCache = CacheBuilder.newBuilder()
                 .maximumSize(MAX_BOOK_NUMBER)
                 .expireAfterAccess(CACHE_DURATION, TimeUnit.MINUTES)
-                .build(new CacheLoader<BookDO, Optional<StorageBook>>()
+                .build(new CacheLoader<BookDO, Optional<Book>>()
                 {
                     @Override
-                    public Optional<StorageBook> load(BookDO key)
+                    public Optional<Book> load(BookDO key)
                     {
                         log.info("从本地加载book:{}", key);
-                        return StorageBook.load(key);
+                        return BookFactory.load(key);
                     }
                 });
     }
 
-    public Optional<StorageBook> getStorageBook(Long id)
+    public Optional<Book> getStorageBook(Long id)
     {
         if (Objects.isNull(id))
         {
@@ -72,7 +73,7 @@ public class BookCache
             return Optional.empty();
         }
         Optional<BookDO> bookOptional = getBookDOById(id);
-        Optional<StorageBook> result = bookOptional.flatMap(k -> bookCache.getUnchecked(k));
+        Optional<Book> result = bookOptional.flatMap(k -> bookCache.getUnchecked(k));
         return result;
     }
 

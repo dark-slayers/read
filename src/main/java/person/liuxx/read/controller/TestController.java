@@ -1,13 +1,9 @@
 package person.liuxx.read.controller;
 
-import java.nio.file.Paths;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import person.liuxx.read.book.BookFactory;
-import person.liuxx.read.book.impl.StorageBook;
 import person.liuxx.read.service.impl.BookServiceImpl;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -27,8 +23,9 @@ public class TestController
     @RequestMapping("/test")
     public String greeting()
     {
-        StorageBook book = BookFactory.parseDir(Paths.get("F:/Book/000006"), "123");
-        return "Test Over !\n" + book.getTitles();
+//        StorageBook book = BookFactory.parseDir(Paths.get("F:/Book/000006"), "123");
+        return "Test Over !\n" ;
+//        + book.getTitles();
     }
 
 }

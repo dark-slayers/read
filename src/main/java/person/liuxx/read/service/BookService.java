@@ -41,7 +41,7 @@ public interface BookService
     Optional<List<String>> listBookTitle(Long bookId);
 
     /**
-     * 加载本地磁盘的指定文件夹，将此文件夹解析为指定书籍名称的书籍
+     * 解析本地磁盘的指定文件夹，将此文件夹解析为指定书籍名称的书籍，然后保存此书籍
      * 
      * @author 刘湘湘
      * @version 1.0.0<br>
@@ -51,7 +51,7 @@ public interface BookService
      *            书籍信息对象，不能为null，name字段为书籍名称，path字段为需要解析的文件夹路径
      * @return 如果解析成功，返回存入数据库的书籍信息，该信息中包含id和书籍的文件路径
      */
-    Optional<BookDO> loadDir(BookDTO book);
+    Optional<BookDO> parseAndSave(BookDTO book);
 
     /**
      * 添加新章节，参数中的index表示插入成功后的章节索引号<br>

@@ -22,8 +22,8 @@ import person.liuxx.read.exception.BookSaveFailedException;
  */
 public class JsonBook implements Book
 {
-    private final String name;
-    private final List<Chapter> chapters;
+    private String name;
+    private List<Chapter> chapters;
 
     /**
      * @param bookName
@@ -80,5 +80,15 @@ public class JsonBook implements Book
             throw new BookSaveFailedException("书籍保存失败！", e);
         }
         return targetPath.toString();
+    }
+
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
+    public void setChapters(List<Chapter> chapters)
+    {
+        this.chapters = chapters;
     }
 }
