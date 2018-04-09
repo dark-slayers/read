@@ -38,6 +38,5 @@ public class RunTest
             System.out.println(">>>>>>>>>>>" + bb.getName());
             System.out.println(">>>>>>>>>>>" + bb.getTitles());
         });
-        ;
     }
 }

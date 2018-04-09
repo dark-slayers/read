@@ -2,6 +2,10 @@ package person.liuxx.read.book;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
+
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 
 /**
  * 书籍对象
@@ -34,17 +38,6 @@ public interface Book
      * @return
      */
     List<String> getTitles();
-
-    /**
-     * 获取章节列表，要求有顺序
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2018年4月7日 下午1:56:12
-     * @since 1.0.0
-     * @return
-     */
-    List<Chapter> getChapters();
 
     /**
      * 使用索引序号获取指定章节
@@ -114,4 +107,16 @@ public interface Book
      * @return 修改后的Book对象
      */
     Book removeChapter(int index);
+
+    /**
+     * 创建文本文件，将创建的文本文件生成一个资源响应
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月9日 下午4:46:33
+     * @since 1.0.0
+     * @param path
+     * @return
+     */
+    Optional<ResponseEntity<Resource>> getTxtResource(Path path);
 }

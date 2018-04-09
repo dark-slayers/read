@@ -15,10 +15,6 @@ import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
 
 import com.alibaba.fastjson.JSON;
 
@@ -27,7 +23,6 @@ import person.liuxx.read.book.impl.JsonChapter;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
-import person.liuxx.util.service.exception.SearchException;
 
 /**
  * @author 刘湘湘
@@ -131,39 +126,6 @@ public final class BookFactory
         {
             log.error(LogUtil.errorInfo(e));
         }
-        log.debug("Book : {}", book.getName());
         return Optional.ofNullable(book);
-    }
-
-    public static ResponseEntity<Resource> createTxt(Book book, Path path)
-    {
-        if (Objects.isNull(path))
-        {
-            throw new SearchException("Book not found");
-        }
-        try
-        {
-            Files.deleteIfExists(path);
-            List<String> lines = book.getChapters()
-                    .stream()
-                    .map(c -> String.join("\n", c.getTitleName(), c.getContent()))
-                    .collect(Collectors.toList());
-            Files.write(path, lines);
-            Resource resource = new UrlResource(path.toUri());
-            if (resource.exists() || resource.isReadable())
-            {
-                String contentDisposition = "attachment; filename=\"" + book.getName() + ".txt\"";
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, new String(contentDisposition
-                                .getBytes("UTF-8"), "ISO8859-1"))
-                        .body(resource);
-            } else
-            {
-                throw new SearchException("Book not found");
-            }
-        } catch (IOException e)
-        {
-            throw new SearchException("Book not found", e);
-        }
     }
 }

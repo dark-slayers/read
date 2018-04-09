@@ -1,11 +1,18 @@
 package person.liuxx.read.book.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 
 import com.alibaba.fastjson.JSON;
 
@@ -49,13 +56,6 @@ public class JsonBook implements Book
     public List<String> getTitles()
     {
         return chapters.stream().map(c -> c.getTitleName()).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<Chapter> getChapters()
-    {
-        List<Chapter> list = chapters.stream().map(c -> c).collect(Collectors.toList());
-        return list;
     }
 
     @Override
@@ -116,5 +116,40 @@ public class JsonBook implements Book
     {
         chapters.remove(index);
         return this;
+    }
+
+    @Override
+    public Optional<ResponseEntity<Resource>> getTxtResource(Path path)
+    {
+        try
+        {
+            Files.deleteIfExists(path);
+            List<String> lines = chapters.stream()
+                    .map(c -> String.join("\n", c.getTitleName(), c.getContent()))
+                    .collect(Collectors.toList());
+            Files.write(path, lines);
+            Resource resource = new UrlResource(path.toUri());
+            return Optional.of(resource).filter(r -> r.exists() || r.isReadable()).map(r ->
+            {
+                String contentDisposition = "attachment; filename=\"" + getName() + ".txt\"";
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, reCode(contentDisposition))
+                        .body(r);
+            });
+        } catch (IOException e)
+        {
+            throw new SaveException("生成书籍TXT文件失败!", e);
+        }
+    }
+
+    private String reCode(String contentDisposition)
+    {
+        try
+        {
+            return new String(contentDisposition.getBytes("UTF-8"), "ISO8859-1");
+        } catch (UnsupportedEncodingException e)
+        {
+            throw new SaveException("生成书籍TXT文件失败!", e);
+        }
     }
 }

@@ -15,14 +15,15 @@ import org.springframework.stereotype.Service;
 import person.liuxx.read.book.Book;
 import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
-import person.liuxx.read.cache.BookCache;
 import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.dto.BookDTO;
+import person.liuxx.read.manager.BookManager;
 import person.liuxx.read.service.BookParseService;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.base.StringUtil;
+import person.liuxx.util.service.exception.SaveException;
 
 /**
  * @author 刘湘湘
@@ -40,19 +41,9 @@ public class BookServiceImpl implements BookService
     @Autowired
     private BookRepository bookDao;
     @Autowired
-    private BookCache bookCache;
+    private BookManager bookManager;
     @Autowired
     private BookParseService bookParseService;
-
-    private Optional<Book> loadStorageBookById(Long id)
-    {
-        return bookCache.getStorageBook(id);
-    }
-
-    private Optional<BookDO> getBookDOById(Long id)
-    {
-        return bookCache.getBookDOById(id);
-    }
 
     /**
      * 使用参数的ID，获取本地书籍资源，使用本地书籍资源生成txt文件<br>
@@ -69,15 +60,18 @@ public class BookServiceImpl implements BookService
     public Optional<ResponseEntity<Resource>> getTxtFile(Long id)
     {
         log.info("下载id为{}的书籍的TXT文件...", id);
-        Optional<BookDO> bookOptional = getBookDOById(id);
-        Optional<ResponseEntity<Resource>> result = bookOptional.map(b ->
+        Optional<ResponseEntity<Resource>> result = bookManager.getBookById(id).flatMap(b ->
         {
-            log.info("从数据库中查询到id为{}的书籍记录", id);
-            return Paths.get(b.getPath()).getParent().resolve(b.getName() + ".txt");
-        }).flatMap(p ->
-        {
-            log.info("从数据库记录的书籍信息的路径{}中加载书籍对象", p);
-            return loadStorageBookById(id).map(b -> BookFactory.createTxt(b, p));
+            Path path = bookDao.findById(id)
+                    .map(bb -> bb.getPath())
+                    .map(Paths::get)
+                    .map(p -> p.getParent())
+                    .map(p -> p.resolve(b.getName() + ".txt"))
+                    .orElseThrow(() ->
+                    {
+                        throw new SaveException("获取文本文件生成路径失败！");
+                    });
+            return b.getTxtResource(path);
         });
         return result;
     }
@@ -93,7 +87,7 @@ public class BookServiceImpl implements BookService
     public Optional<List<String>> listBookTitle(Long bookId)
     {
         log.info("使用书籍id{}获取书籍目录列表", bookId);
-        Optional<Book> bookOption = loadStorageBookById(bookId);
+        Optional<Book> bookOption = bookManager.getBookById(bookId);
         Optional<List<String>> list = bookOption.map(b -> b.getTitles());
         return list;
     }
