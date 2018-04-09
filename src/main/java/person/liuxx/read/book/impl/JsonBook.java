@@ -12,7 +12,7 @@ import com.alibaba.fastjson.JSON;
 import person.liuxx.read.book.Book;
 import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
-import person.liuxx.read.exception.BookSaveFailedException;
+import person.liuxx.util.service.exception.SaveException;
 
 /**
  * @author 刘湘湘
@@ -77,7 +77,7 @@ public class JsonBook implements Book
             Files.write(targetPath, list);
         } catch (IOException e)
         {
-            throw new BookSaveFailedException("书籍保存失败！", e);
+            throw new SaveException("书籍保存失败！", e);
         }
         return targetPath.toString();
     }
@@ -90,5 +90,26 @@ public class JsonBook implements Book
     public void setChapters(List<Chapter> chapters)
     {
         this.chapters = chapters;
+    }
+
+    @Override
+    public Book insertChapter(int index, Chapter chapter)
+    {
+        chapters.add(index, chapter);
+        return this;
+    }
+
+    @Override
+    public Book updateChapter(int index, Chapter chapter)
+    {
+        chapters.set(index, chapter);
+        return this;
+    }
+
+    @Override
+    public Book removeChapter(int index)
+    {
+        chapters.remove(index);
+        return this;
     }
 }

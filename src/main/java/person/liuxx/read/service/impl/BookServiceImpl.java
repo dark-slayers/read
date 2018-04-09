@@ -15,8 +15,6 @@ import org.springframework.stereotype.Service;
 import person.liuxx.read.book.Book;
 import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
-import person.liuxx.read.book.impl.StorageBook;
-import person.liuxx.read.book.impl.StoreChapter;
 import person.liuxx.read.cache.BookCache;
 import person.liuxx.read.config.BookConfig;
 import person.liuxx.read.dao.BookRepository;
@@ -57,23 +55,6 @@ public class BookServiceImpl implements BookService
     }
 
     /**
-     * 章节对象转为书籍对象
-     * 
-     * @author 刘湘湘
-     * @version 1.0.0<br>
-     *          创建时间：2017年8月22日 上午10:24:30
-     * @since 1.0.0
-     * @param chapter
-     * @return
-     */
-    private Optional<Book> getStorageBook(StoreChapter chapter)
-    {
-        return Optional.ofNullable(chapter)
-                .filter(c -> c.getBookId() > 0 && c.getIndex() >= 0)
-                .flatMap(c -> loadStorageBookById(chapter.getBookId()));
-    }
-
-    /**
      * 使用参数的ID，获取本地书籍资源，使用本地书籍资源生成txt文件<br>
      * 返回txt文件资源流
      * 
@@ -96,7 +77,7 @@ public class BookServiceImpl implements BookService
         }).flatMap(p ->
         {
             log.info("从数据库记录的书籍信息的路径{}中加载书籍对象", p);
-            return loadStorageBookById(id).map(b -> b.createTxt(p));
+            return loadStorageBookById(id).map(b -> BookFactory.createTxt(b, p));
         });
         return result;
     }
@@ -136,74 +117,5 @@ public class BookServiceImpl implements BookService
         bookDO.setName(b.getName());
         BookDO saveBookDO = bookDao.save(bookDO);
         return Optional.ofNullable(saveBookDO);
-    }
-
-    @Override
-    public Optional<Chapter> getChapter(Long bookId, int chapterIndex)
-    {
-        log.info("查询书籍id为{}，章节索引为{}的章节", bookId, chapterIndex);
-        Optional<Book> bookOption = loadStorageBookById(bookId);
-        Optional<Chapter> chapter = bookOption.map(b -> b.getChapter(bookId, chapterIndex));
-        return chapter;
-    }
-
-    @Override
-    public Optional<StoreChapter> saveChapter(StoreChapter chapter)
-    {
-        log.info("请求添加章节:{}", chapter.logInfo());
-        Optional<Book> bookOptional = getStorageBook(chapter);
-        Optional<StoreChapter> result = bookOptional.flatMap(b ->
-        {
-            Optional<BookDO> bookDO = getBookDOById(chapter.getBookId());
-            Optional<StoreChapter> cp = bookDO.map(bDO ->
-            {
-                b.getTitles().add(chapter.getIndex(), chapter.getTitleName());
-                b.getStories().add(chapter.getIndex(), chapter.getContent());
-                b.update(bookDO.orElse(null));
-                return chapter;
-            });
-            return cp;
-        });
-        return result;
-    }
-
-    @Override
-    public Optional<StoreChapter> removeChapter(Long bookId, int chapterIndex)
-    {
-        log.info("请求删除id为{}的书籍中，索引为{}的章节", bookId, chapterIndex);
-        Optional<BookDO> optional = getBookDOById(bookId);
-        Optional<Book> bookOptional = loadStorageBookById(bookId);
-        Optional<StoreChapter> result = bookOptional.filter(b ->
-        {
-            return b.getTitles().size() > chapterIndex && b.getStories().size() > chapterIndex;
-        }).map(b ->
-        {
-            StoreChapter chapter = b.getChapter(bookId, chapterIndex);
-            b.getTitles().remove(chapterIndex);
-            b.getStories().remove(chapterIndex);
-            b.update(optional.orElse(null));
-            return chapter;
-        });
-        return result;
-    }
-
-    @Override
-    public Optional<StoreChapter> updateChapter(StoreChapter chapter)
-    {
-        log.info("请求更新章节:{}", chapter.logInfo());
-        Optional<Book> bookOptional = getStorageBook(chapter);
-        Optional<StoreChapter> result = bookOptional.flatMap(b ->
-        {
-            Optional<BookDO> bookDO = getBookDOById(chapter.getBookId());
-            Optional<StoreChapter> cp = bookDO.map(bDO ->
-            {
-                b.getTitles().set(chapter.getIndex(), chapter.getTitleName());
-                b.getStories().set(chapter.getIndex(), chapter.getContent());
-                b.update(bookDO.orElse(null));
-                return chapter;
-            });
-            return cp;
-        });
-        return result;
     }
 }

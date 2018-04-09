@@ -7,12 +7,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -24,13 +22,10 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import person.liuxx.read.book.Chapter;
-import person.liuxx.read.book.impl.StoreChapter;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.exception.BookLoadFailedException;
 import person.liuxx.read.exception.BookNotFoundException;
-import person.liuxx.read.exception.BookUpdateFailedException;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
@@ -89,61 +84,6 @@ public class BookController
         return bookService.parseAndSave(book).<BookLoadFailedException> orElseThrow(() ->
         {
             throw new BookLoadFailedException("加载书籍失败，书籍信息：" + book);
-        });
-    }
-
-    @ApiOperation(value = "获取章节的信息", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
-    @ApiImplicitParams(
-    { @ApiImplicitParam(name = "bookId", value = "书籍id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "chapterIndex", value = "章节索引编号", required = true,
-                    dataType = "int") })
-    @GetMapping("/chapter/{bookId}/{chapterIndex}")
-    public Chapter chapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
-    {
-        return bookService.getChapter(bookId, chapterIndex).<BookUpdateFailedException> orElseThrow(
-                () ->
-                {
-                    throw new BookUpdateFailedException("书籍章节获取失败，书籍id：" + bookId + "，章节索引："
-                            + chapterIndex);
-                });
-    }
-
-    @ApiOperation(value = "添加章节", notes = "根据书籍id和章节索引编号index获取书籍的指定章节内容")
-    @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
-    @PostMapping("/chapter")
-    public StoreChapter saveChapter(@RequestBody StoreChapter chapter)
-    {
-        return bookService.saveChapter(chapter).<BookUpdateFailedException> orElseThrow(() ->
-        {
-            throw new BookUpdateFailedException("书籍章节添加失败，章节信息：" + chapter.logInfo());
-        });
-    }
-
-    @ApiOperation(value = "删除章节", notes = "从指定id书籍中，删除索引编号为index章节")
-    @ApiImplicitParams(
-    { @ApiImplicitParam(name = "bookId", value = "书籍id", required = true, dataType = "Long"),
-            @ApiImplicitParam(name = "chapterIndex", value = "章节索引编号", required = true,
-                    dataType = "int") })
-    @DeleteMapping("/chapter/{bookId}/{chapterIndex}")
-    public StoreChapter removeChapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
-    {
-        return bookService.removeChapter(bookId, chapterIndex)
-                .<BookUpdateFailedException> orElseThrow(() ->
-                {
-                    throw new BookUpdateFailedException("书籍章节删除失败，书籍id：" + bookId + "，章节索引："
-                            + chapterIndex);
-                });
-    }
-
-    @ApiOperation(value = "更新章节", notes = "根据书籍id和章节索引编号index更新书籍的指定章节内容")
-    @ApiImplicitParam(name = "chapter", value = "章节信息", required = true, dataType = "Chapter")
-    @PutMapping("/chapter")
-    @ResponseStatus(value = HttpStatus.CREATED)
-    public StoreChapter updateChapter(@RequestBody StoreChapter chapter)
-    {
-        return bookService.updateChapter(chapter).<BookUpdateFailedException> orElseThrow(() ->
-        {
-            throw new BookUpdateFailedException("书籍章节更新失败，章节信息：" + chapter.logInfo());
         });
     }
 

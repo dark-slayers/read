@@ -70,4 +70,48 @@ public interface Book
      * @return 保存后的路径的字符串表示
      */
     String save(Path dir);
+
+    /**
+     * 将章节插入指定位置，原来位置以及原来位置之后的的章节后移
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月9日 上午11:34:58
+     * @since 1.0.0
+     * @param index
+     *            目标位置
+     * @param chapter
+     *            章节
+     * @return 修改后的Book对象
+     */
+    Book insertChapter(int index, Chapter chapter);
+
+    /**
+     * 更新指定位置的章节
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月9日 下午3:20:27
+     * @since 1.0.0
+     * @param index
+     *            目标位置
+     * @param chapter
+     *            章节
+     * @return 修改后的Book对象
+     */
+    Book updateChapter(int index, Chapter chapter);
+
+    /**
+     * 删除指定位置的章节，指定位置以及后面的章节前移
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月9日 下午3:20:31
+     * @since 1.0.0
+     * @param index
+     *            目标位置
+     * 
+     * @return 修改后的Book对象
+     */
+    Book removeChapter(int index);
 }
