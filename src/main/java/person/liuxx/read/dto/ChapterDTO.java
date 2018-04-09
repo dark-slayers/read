@@ -3,7 +3,7 @@ package person.liuxx.read.dto;
 import com.alibaba.fastjson.JSON;
 
 import person.liuxx.read.book.Chapter;
-import person.liuxx.read.book.impl.BaseChapter;
+import person.liuxx.read.book.impl.JsonChapter;
 
 /**
  * @author 刘湘湘
@@ -69,7 +69,7 @@ public class ChapterDTO
 
     public Chapter mapToChapter()
     {
-        return new BaseChapter(titleName, content);
+        return new JsonChapter(titleName, content);
     }
 
     @Override

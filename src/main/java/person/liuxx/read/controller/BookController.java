@@ -25,10 +25,10 @@ import io.swagger.annotations.ApiOperation;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.exception.BookLoadFailedException;
-import person.liuxx.read.exception.BookNotFoundException;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
+import person.liuxx.util.service.exception.SearchException;
 import person.liuxx.util.service.reponse.ErrorResponse;
 
 /**
@@ -51,9 +51,9 @@ public class BookController
     @GetMapping("/info")
     public BookDO name(@RequestParam(value = "name", defaultValue = "CC") String name)
     {
-        return bookService.getBook(name).<BookNotFoundException> orElseThrow(() ->
+        return bookService.getBook(name).<SearchException> orElseThrow(() ->
         {
-            throw new BookNotFoundException("书籍查询失败，书籍名称：" + name);
+            throw new SearchException("书籍查询失败，书籍名称：" + name);
         });
     }
 
@@ -62,9 +62,9 @@ public class BookController
     @RequestMapping(value = "/titles/{bookId}", method = RequestMethod.GET)
     public List<String> titleList(@PathVariable Long bookId)
     {
-        return bookService.listBookTitle(bookId).<BookNotFoundException> orElseThrow(() ->
+        return bookService.listBookTitle(bookId).<SearchException> orElseThrow(() ->
         {
-            throw new BookNotFoundException("书籍查询失败，书籍id：" + bookId);
+            throw new SearchException("书籍查询失败，书籍id：" + bookId);
         });
     }
 

@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import person.liuxx.read.book.Chapter;
-import person.liuxx.read.book.impl.BaseChapter;
+import person.liuxx.read.book.impl.JsonChapter;
 import person.liuxx.read.page.StoryPage;
 import person.liuxx.read.page.TitlePage;
 import person.liuxx.read.service.BookParseService;
@@ -53,7 +53,7 @@ public class BookParseServiceImpl implements BookParseService
                 } else
                 {
                     StoryPage page = new StoryPage(p);
-                    result.add(new BaseChapter(key, page.getStory()));
+                    result.add(new JsonChapter(key, page.getStory()));
                 }
             } else
             {

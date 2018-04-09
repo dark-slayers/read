@@ -8,15 +8,19 @@ import person.liuxx.read.book.Chapter;
  *          创建时间：2018年4月8日 上午11:13:23
  * @since 1.0.0
  */
-public class BaseChapter implements Chapter
+public class JsonChapter implements Chapter
 {
-    private final String titleName;
-    private final String content;
+    private String titleName;
+    private String content;
 
-    public BaseChapter(String titleName, String content)
+    public JsonChapter(String titleName, String content)
     {
         this.titleName = titleName;
         this.content = content;
+    }
+
+    public JsonChapter()
+    {
     }
 
     @Override
@@ -29,6 +33,16 @@ public class BaseChapter implements Chapter
     public String getContent()
     {
         return content;
+    }
+
+    public void setTitleName(String titleName)
+    {
+        this.titleName = titleName;
+    }
+
+    public void setContent(String content)
+    {
+        this.content = content;
     }
 
     @Override

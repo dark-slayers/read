@@ -23,11 +23,11 @@ import org.springframework.http.ResponseEntity;
 import com.alibaba.fastjson.JSON;
 
 import person.liuxx.read.book.impl.JsonBook;
-import person.liuxx.read.book.impl.StorageBook;
+import person.liuxx.read.book.impl.JsonChapter;
 import person.liuxx.read.domain.BookDO;
-import person.liuxx.read.exception.BookNotFoundException;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
+import person.liuxx.util.service.exception.SearchException;
 
 /**
  * @author 刘湘湘
@@ -46,7 +46,9 @@ public final class BookFactory
 
     public static Book createBook(String bookName, List<Chapter> stories)
     {
-        JsonBook book = new JsonBook(bookName, stories);
+        List<JsonChapter> list = stories.stream().map(c -> (JsonChapter) c).collect(Collectors
+                .toList());
+        JsonBook book = new JsonBook(bookName, list);
         return book;
     }
 
@@ -90,20 +92,18 @@ public final class BookFactory
      * @param name
      * @return
      */
-    public static StorageBook parseTxt(Path path, String name)
+    public static Book parseTxt(Path path, String name)
     {
-        List<String> titleList = new LinkedList<>();
-        titleList.add(name);
-        List<String> stories = new LinkedList<>();
+        List<JsonChapter> stories = new LinkedList<>();
         try
         {
             String story = Files.lines(path).collect(Collectors.joining("\n"));
-            stories.add(story);
+            stories.add(new JsonChapter(name, story));
         } catch (IOException e)
         {
             log.error(LogUtil.errorInfo(e));
         }
-        StorageBook book = new StorageBook(name, titleList, stories);
+        JsonBook book = new JsonBook(name, stories);
         return book;
     }
 
@@ -131,6 +131,7 @@ public final class BookFactory
         {
             log.error(LogUtil.errorInfo(e));
         }
+        log.debug("Book : {}", book.getName());
         return Optional.ofNullable(book);
     }
 
@@ -138,7 +139,7 @@ public final class BookFactory
     {
         if (Objects.isNull(path))
         {
-            throw new BookNotFoundException("Book not found");
+            throw new SearchException("Book not found");
         }
         try
         {
@@ -158,11 +159,11 @@ public final class BookFactory
                         .body(resource);
             } else
             {
-                throw new BookNotFoundException("Book not found");
+                throw new SearchException("Book not found");
             }
         } catch (IOException e)
         {
-            throw new BookNotFoundException("Book not found", e);
+            throw new SearchException("Book not found", e);
         }
     }
 }

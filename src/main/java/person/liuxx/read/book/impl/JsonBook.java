@@ -23,13 +23,17 @@ import person.liuxx.util.service.exception.SaveException;
 public class JsonBook implements Book
 {
     private String name;
-    private List<Chapter> chapters;
+    private List<JsonChapter> chapters;
+
+    public JsonBook()
+    {
+    }
 
     /**
      * @param bookName
      * @param stories
      */
-    public JsonBook(String bookName, List<Chapter> chapters)
+    public JsonBook(String bookName, List<JsonChapter> chapters)
     {
         this.name = bookName;
         this.chapters = chapters;
@@ -50,7 +54,8 @@ public class JsonBook implements Book
     @Override
     public List<Chapter> getChapters()
     {
-        return chapters;
+        List<Chapter> list = chapters.stream().map(c -> c).collect(Collectors.toList());
+        return list;
     }
 
     @Override
@@ -87,7 +92,7 @@ public class JsonBook implements Book
         this.name = name;
     }
 
-    public void setChapters(List<Chapter> chapters)
+    public void setChapters(List<JsonChapter> chapters)
     {
         this.chapters = chapters;
     }
@@ -95,14 +100,14 @@ public class JsonBook implements Book
     @Override
     public Book insertChapter(int index, Chapter chapter)
     {
-        chapters.add(index, chapter);
+        chapters.add(index, (JsonChapter) chapter);
         return this;
     }
 
     @Override
     public Book updateChapter(int index, Chapter chapter)
     {
-        chapters.set(index, chapter);
+        chapters.set(index, (JsonChapter) chapter);
         return this;
     }
 

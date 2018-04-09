@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,10 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
-import person.liuxx.read.exception.BookNotFoundException;
 import person.liuxx.read.service.impl.BookServiceImpl;
-import person.liuxx.util.log.LogUtil;
-import person.liuxx.util.service.reponse.ErrorResponse;
+import person.liuxx.util.service.exception.SearchException;
 
 /**
  * @author 刘湘湘
@@ -42,17 +39,9 @@ public class BookResourceController
     public ResponseEntity<Resource> txt(@PathVariable Long id)
     {
         log.info("下载id为{}的书籍...", id);
-        return bookService.getTxtFile(id).<BookNotFoundException>orElseThrow(() ->
+        return bookService.getTxtFile(id).<SearchException> orElseThrow(() ->
         {
-            throw new BookNotFoundException("无法下载书籍的txt文件，书籍名称：" + id);
+            throw new SearchException("无法下载书籍的txt文件，书籍名称：" + id);
         });
-    }
-
-    @ExceptionHandler(BookNotFoundException.class)
-    public ErrorResponse exceptionHandler(BookNotFoundException e)
-    {
-        ErrorResponse resp = new ErrorResponse(404, 40491, "无法下载书籍的txt文件", "失败信息：" + LogUtil
-                .errorInfo(e), "more info");
-        return resp;
     }
 }

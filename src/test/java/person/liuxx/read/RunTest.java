@@ -9,9 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import com.alibaba.fastjson.JSON;
-
-import person.liuxx.read.book.impl.StoreChapter;
+import person.liuxx.read.book.BookFactory;
+import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.service.impl.BookServiceImpl;
 
 /**
@@ -32,11 +31,13 @@ public class RunTest
     @Test
     public void testRun()
     {
-        StoreChapter logChapter = new StoreChapter();
-        logChapter.setBookId(12L);
-        logChapter.setIndex(8);
-        logChapter.setTitle("AA");
-        String s = JSON.toJSONString(logChapter);
-        System.out.println(s);
+        BookDO b = new BookDO();
+        b.setPath("F:/Book/Storage/8/2/0/AA.json");
+        BookFactory.load(b).ifPresent(bb ->
+        {
+            System.out.println(">>>>>>>>>>>" + bb.getName());
+            System.out.println(">>>>>>>>>>>" + bb.getTitles());
+        });
+        ;
     }
 }
