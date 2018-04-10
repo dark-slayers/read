@@ -46,12 +46,20 @@ public class ChapterServiceImpl implements ChapterService
     }
 
     @Override
-    public Optional<Chapter> getChapter(Long bookId, int chapterIndex)
+    public Optional<ChapterDTO> getChapter(Long bookId, int chapterIndex)
     {
         log.info("查询书籍id为{}，章节索引为{}的章节", bookId, chapterIndex);
         Optional<Book> bookOption = bookManager.getBookById(bookId);
         Optional<Chapter> chapter = bookOption.map(b -> b.getChapter(chapterIndex));
-        return chapter;
+        return chapter.map(c ->
+        {
+            ChapterDTO result = new ChapterDTO();
+            result.setBookId(bookId);
+            result.setContent(c.getContent());
+            result.setIndex(chapterIndex);
+            result.setTitleName(c.getTitleName());
+            return result;
+        });
     }
 
     @Override

@@ -16,7 +16,6 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import person.liuxx.read.book.Chapter;
 import person.liuxx.read.dto.ChapterDTO;
 import person.liuxx.read.service.ChapterService;
 import person.liuxx.util.service.exception.RemoveException;
@@ -60,7 +59,7 @@ public class ChapterController
             @ApiImplicitParam(name = "chapterIndex", value = "章节索引编号", required = true,
                     dataType = "int") })
     @GetMapping("/{bookId}/chapter/{chapterIndex}")
-    public Chapter chapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
+    public ChapterDTO chapter(@PathVariable Long bookId, @PathVariable int chapterIndex)
     {
         return chapterService.getChapter(bookId, chapterIndex).<SearchException> orElseThrow(() ->
         {

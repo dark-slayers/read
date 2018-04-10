@@ -2,7 +2,6 @@ package person.liuxx.read.service;
 
 import java.util.Optional;
 
-import person.liuxx.read.book.Chapter;
 import person.liuxx.read.dto.ChapterDTO;
 import person.liuxx.util.service.reponse.EmptySuccedResponse;
 
@@ -42,7 +41,7 @@ public interface ChapterService
      *            章节索引
      * @return 查询到的章节
      */
-    Optional<Chapter> getChapter(Long bookId, int chapterIndex);
+    Optional<ChapterDTO> getChapter(Long bookId, int chapterIndex);
 
     /**
      * 添加新章节，参数中的index表示插入成功后的章节索引号<br>
