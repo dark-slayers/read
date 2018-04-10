@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import person.liuxx.read.book.Book;
+import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.dao.BookRepository;
 import person.liuxx.read.dto.ChapterDTO;
@@ -98,7 +99,7 @@ public class ChapterServiceImpl implements ChapterService
                 break;
             }
         }
-        book.save(path);
+        BookFactory.save(book, path);
         return Optional.of(new EmptySuccedResponse());
     }
 }

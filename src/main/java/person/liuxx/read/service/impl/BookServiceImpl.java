@@ -105,11 +105,14 @@ public class BookServiceImpl implements BookService
         log.info("文件存储路径：{}", targetPath);
         List<Chapter> list = bookParseService.parseDir(Paths.get(book.getPath()));
         Book b = BookFactory.createBook(book.getName(), list);
-        String path = b.save(targetPath);
-        BookDO bookDO = new BookDO();
-        bookDO.setPath(path);
-        bookDO.setName(b.getName());
-        BookDO saveBookDO = bookDao.save(bookDO);
-        return Optional.ofNullable(saveBookDO);
+        Optional<BookDO> result = BookFactory.saveToDir(b, targetPath).map(p ->
+        {
+            BookDO bookDO = new BookDO();
+            bookDO.setPath(p.toString());
+            bookDO.setName(b.getName());
+            BookDO saveBookDO = bookDao.save(bookDO);
+            return saveBookDO;
+        });
+        return result;
     }
 }

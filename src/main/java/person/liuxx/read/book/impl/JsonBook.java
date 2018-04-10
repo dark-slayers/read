@@ -4,20 +4,17 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 
-import com.alibaba.fastjson.JSON;
-
 import person.liuxx.read.book.Book;
-import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.Chapter;
 import person.liuxx.util.service.exception.SaveException;
 
@@ -62,29 +59,6 @@ public class JsonBook implements Book
     public Chapter getChapter(int index)
     {
         return chapters.get(index);
-    }
-
-    @Override
-    public String save(Path dir)
-    {
-        Path subPath = BookFactory.hashPath(name);
-        Path targetPath = dir.resolve(subPath);
-        Path parentPath = targetPath.getParent();
-        String text = JSON.toJSONString(this);
-        List<String> list = new ArrayList<>();
-        list.add(text);
-        try
-        {
-            if (!Files.exists(parentPath))
-            {
-                Files.createDirectories(parentPath);
-            }
-            Files.write(targetPath, list);
-        } catch (IOException e)
-        {
-            throw new SaveException("书籍保存失败！", e);
-        }
-        return targetPath.toString();
     }
 
     public void setName(String name)
@@ -151,5 +125,11 @@ public class JsonBook implements Book
         {
             throw new SaveException("生成书籍TXT文件失败!", e);
         }
+    }
+
+    @Override
+    public Stream<Chapter> chapterStream()
+    {
+        return chapters.stream().map(c -> c);
     }
 }

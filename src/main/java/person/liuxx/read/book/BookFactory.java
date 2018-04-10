@@ -2,9 +2,11 @@ package person.liuxx.read.book;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -17,12 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 
 import person.liuxx.read.book.impl.JsonBook;
 import person.liuxx.read.book.impl.JsonChapter;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
+import person.liuxx.util.service.exception.SaveException;
 
 /**
  * @author 刘湘湘
@@ -112,7 +116,7 @@ public final class BookFactory
      */
     public static Optional<Book> load(BookDO bookDO)
     {
-        log.info("开始加载BOOK：{}",bookDO);
+        log.info("开始加载BOOK：{}", bookDO);
         if (Objects.isNull(bookDO) || StringUtil.isEmpty(bookDO.getPath()))
         {
             return Optional.empty();
@@ -122,12 +126,45 @@ public final class BookFactory
         try
         {
             String text = Files.lines(targetPath).collect(Collectors.joining());
-            book = JSON.parseObject(text, JsonBook.class);
+            Type type = new TypeReference<List<JsonChapter>>()
+            {
+            }.getType();
+            List<JsonChapter> list = JSON.parseObject(text, type);
+            book = new JsonBook(bookDO.getName(), list);
         } catch (IOException e)
         {
             log.error(LogUtil.errorInfo(e));
         }
-        log.info("加载BOOK结束：{}",bookDO);
+        log.info("加载BOOK结束：{}", bookDO);
         return Optional.ofNullable(book);
+    }
+
+    public static Optional<Path> saveToDir(Book book, Path dir)
+    {
+        Path subPath = BookFactory.hashPath(book.getName());
+        Path targetPath = dir.resolve(subPath);
+        return save(book, targetPath);
+    }
+
+    public static Optional<Path> save(Book book, Path targetPath)
+    {
+        Path parentPath = targetPath.getParent();
+        List<JsonChapter> chapters = book.chapterStream().map(c -> (JsonChapter) c).collect(
+                Collectors.toList());
+        String text = JSON.toJSONString(chapters);
+        List<String> list = new ArrayList<>();
+        list.add(text);
+        try
+        {
+            if (!Files.exists(parentPath))
+            {
+                Files.createDirectories(parentPath);
+            }
+            Files.write(targetPath, list);
+        } catch (IOException e)
+        {
+            throw new SaveException("书籍保存失败！", e);
+        }
+        return Optional.of(targetPath);
     }
 }

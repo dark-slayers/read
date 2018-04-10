@@ -10,7 +10,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
 import person.liuxx.read.book.BookFactory;
+import person.liuxx.read.book.BookStorageType;
 import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.service.impl.BookServiceImpl;
 
 /**
@@ -31,12 +33,17 @@ public class RunTest
     @Test
     public void testRun()
     {
-        BookDO b = new BookDO();
-        b.setPath("F:/Book/Storage/8/2/0/AA.json");
-        BookFactory.load(b).ifPresent(bb ->
-        {
-            System.out.println(">>>>>>>>>>>" + bb.getName());
-            System.out.println(">>>>>>>>>>>" + bb.getTitles());
-        });
+        BookDTO b1=new BookDTO();
+        b1.setName("Test Book 1");
+        b1.setPath("F:\\Book\\000001");
+        b1.setType(BookStorageType.DIR);
+        bookService.parseAndSave(b1);
+//        BookDO b = new BookDO();
+//        b.setPath("F:/Book/Storage/F/C/8/Test Book 1.json");
+//        BookFactory.load(b).ifPresent(bb ->
+//        {
+//            System.out.println(">>>>>>>>>>>" + bb.getName());
+//            System.out.println(">>>>>>>>>>>" + bb.getTitles());
+//        });
     }
 }
