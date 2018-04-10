@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,9 +26,7 @@ import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.exception.BookLoadFailedException;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.base.StringUtil;
-import person.liuxx.util.log.LogUtil;
 import person.liuxx.util.service.exception.SearchException;
-import person.liuxx.util.service.reponse.ErrorResponse;
 
 /**
  * @author 刘湘湘
@@ -72,7 +69,7 @@ public class BookController
     @ApiImplicitParams(
     { @ApiImplicitParam(name = "book", value = "书籍信息实体BookDTO", required = true,
             dataType = "BookDTO") })
-    @PostMapping("path")
+    @PostMapping("/path")
     @ResponseStatus(value = HttpStatus.CREATED)
     public BookDO load(@RequestBody BookDTO book)
     {
@@ -85,50 +82,5 @@ public class BookController
         {
             throw new BookLoadFailedException("加载书籍失败，书籍信息：" + book);
         });
-    }
-
-    @ExceptionHandler(
-    { Exception.class })
-    public ErrorResponse exceptionHandler(Exception e)
-    {
-        log.error(LogUtil.errorInfo(e));
-        switch (e.getClass().getName())
-        {
-        case "person.liuxx.read.exception.BookSaveFailedException":
-            {
-                return new ErrorResponse(500, 50002, "书籍保存失败", "失败信息：" + LogUtil.errorInfo(e),
-                        "more info");
-            }
-        case "person.liuxx.read.exception.BookRemoveFailedException":
-            {
-                return new ErrorResponse(500, 50003, "书籍删除失败", "失败信息：" + LogUtil.errorInfo(e),
-                        "more info");
-            }
-        case "person.liuxx.read.exception.BookUpdateFailedException":
-            {
-                return new ErrorResponse(500, 50004, "书籍更新失败", "失败信息：" + LogUtil.errorInfo(e),
-                        "more info");
-            }
-        case "person.liuxx.read.exception.BookLoadFailedException":
-            {
-                return new ErrorResponse(500, 50005, "书籍加载失败", "失败信息：" + LogUtil.errorInfo(e),
-                        "more info");
-            }
-        case "person.liuxx.read.exception.BookNotFoundException":
-            {
-                return new ErrorResponse(404, 40402, "获取书籍失败", "失败信息：" + LogUtil.errorInfo(e),
-                        "more info");
-            }
-        case "java.lang.IllegalArgumentException":
-            {
-                return new ErrorResponse(400, 40001, "请求参数格式错误", "失败信息：" + LogUtil.errorInfo(e),
-                        "more info");
-            }
-        default:
-            {
-                return new ErrorResponse(500, 50001, "未知错误", "失败信息：" + LogUtil.errorInfo(e),
-                        "more info");
-            }
-        }
     }
 }

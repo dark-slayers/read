@@ -112,6 +112,7 @@ public final class BookFactory
      */
     public static Optional<Book> load(BookDO bookDO)
     {
+        log.info("开始加载BOOK：{}",bookDO);
         if (Objects.isNull(bookDO) || StringUtil.isEmpty(bookDO.getPath()))
         {
             return Optional.empty();
@@ -126,6 +127,7 @@ public final class BookFactory
         {
             log.error(LogUtil.errorInfo(e));
         }
+        log.info("加载BOOK结束：{}",bookDO);
         return Optional.ofNullable(book);
     }
 }
