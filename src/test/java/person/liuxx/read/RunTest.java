@@ -9,9 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.book.BookStorageType;
-import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.service.impl.BookServiceImpl;
 

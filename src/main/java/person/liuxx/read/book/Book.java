@@ -8,8 +8,6 @@ import java.util.stream.Stream;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 
-import person.liuxx.read.book.impl.JsonChapter;
-
 /**
  * 书籍对象
  * 
@@ -42,6 +40,15 @@ public interface Book
      */
     List<String> getTitles();
 
+    /**
+     * 获取Book对象的章节流，该方法用于IO操作
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月10日 下午4:58:10
+     * @since 1.0.0
+     * @return
+     */
     Stream<Chapter> chapterStream();
 
     /**
