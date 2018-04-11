@@ -14,6 +14,7 @@ import person.liuxx.read.book.impl.JsonChapter;
 import person.liuxx.read.page.StoryPage;
 import person.liuxx.read.page.TitlePage;
 import person.liuxx.read.service.BookParseService;
+import person.liuxx.util.file.DirUtil;
 import person.liuxx.util.file.FileUtil;
 
 /**
@@ -32,7 +33,7 @@ public class BookParseServiceImpl implements BookParseService
     {
         log.info("解析路径：{}", path);
         List<Chapter> result = new ArrayList<>();
-        if (!FileUtil.existsDir(path))
+        if (!DirUtil.exists(path))
         {
             return result;
         }
