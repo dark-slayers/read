@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +40,18 @@ public class BookParseServiceImpl implements BookParseService
         }
         TitlePage titlePage = new TitlePage(path);
         Map<String, String> map = titlePage.getMap();
-        map.keySet().forEach(key ->
+        Map<String, Chapter> chapterMap = getMap(map, path);
+        map.keySet().stream().forEach(key ->
+        {
+            result.add(chapterMap.get(key));
+        });
+        return result;
+    }
+
+    private Map<String, Chapter> getMap(final Map<String, String> map, final Path path)
+    {
+        Map<String, Chapter> result = new ConcurrentHashMap<>();
+        map.keySet().stream().parallel().forEach(key ->
         {
             log.info("获取章节名称：{}", key);
             String linkHref = map.get(key);
@@ -54,7 +66,7 @@ public class BookParseServiceImpl implements BookParseService
                 } else
                 {
                     StoryPage page = new StoryPage(p);
-                    result.add(new JsonChapter(key, page.getStory()));
+                    result.put(key, new JsonChapter(key, page.getStory()));
                 }
             } else
             {

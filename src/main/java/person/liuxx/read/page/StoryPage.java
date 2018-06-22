@@ -14,7 +14,7 @@ import org.jsoup.nodes.Element;
  */
 public class StoryPage extends WebPage
 {
-    private String story;
+    private final String story;
     final static String NEWLINE = "#@@#";
 
     public StoryPage(Path path)

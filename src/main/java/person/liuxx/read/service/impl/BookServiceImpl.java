@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class BookServiceImpl implements BookService
 {
     private Logger log = LoggerFactory.getLogger(BookServiceImpl.class);
     private final static Path DEFAULT_STORAGE_PATH = Paths.get("F:\\Book\\Storage");
+    private final static CopyOnWriteArrayList<String> PARSE_ID_LIST = new CopyOnWriteArrayList<>();
     @Autowired
     private BookConfig bookConfig;
     @Autowired
@@ -103,16 +105,27 @@ public class BookServiceImpl implements BookService
                 .map(p -> Paths.get(p))
                 .orElse(DEFAULT_STORAGE_PATH);
         log.info("文件存储路径：{}", targetPath);
-        List<Chapter> list = bookParseService.parseDir(Paths.get(book.getPath()));
-        Book b = BookFactory.createBook(book.getName(), list);
-        Optional<BookDO> result = BookFactory.saveToDir(b, targetPath).map(p ->
+        Optional<BookDO> result = Optional.empty();
+        String parseId = book.getPath();
+        if (PARSE_ID_LIST.addIfAbsent(parseId))
         {
-            BookDO bookDO = new BookDO();
-            bookDO.setPath(p.toString());
-            bookDO.setName(b.getName());
-            BookDO saveBookDO = bookDao.save(bookDO);
-            return saveBookDO;
-        });
+            try
+            {
+                List<Chapter> list = bookParseService.parseDir(Paths.get(book.getPath()));
+                Book b = BookFactory.createBook(book.getName(), list);
+                result = BookFactory.saveToDir(b, targetPath).map(p ->
+                {
+                    BookDO bookDO = new BookDO();
+                    bookDO.setPath(p.toString());
+                    bookDO.setName(b.getName());
+                    BookDO saveBookDO = bookDao.save(bookDO);
+                    return saveBookDO;
+                });
+            } finally
+            {
+                PARSE_ID_LIST.remove(parseId);
+            }
+        }
         return result;
     }
 }
