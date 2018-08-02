@@ -139,14 +139,19 @@ public final class BookFactory
         return Optional.ofNullable(book);
     }
 
-    /** 将Book对象序列化后保存至本地文件夹，本地文件夹内部使用hash进行子文件夹分割。
-    * @author  刘湘湘 
-    * @version 1.0.0<br>创建时间：2018年4月10日 下午4:59:10
-    * @since 1.0.0 
-    * @param book Book对象
-    * @param dir 目标目录
-    * @return 保存后的实际位置的全路径
-    */
+    /**
+     * 将Book对象序列化后保存至本地文件夹，本地文件夹内部使用hash进行子文件夹分割。
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月10日 下午4:59:10
+     * @since 1.0.0
+     * @param book
+     *            Book对象
+     * @param dir
+     *            目标目录
+     * @return 保存后的实际位置的全路径
+     */
     public static Optional<Path> saveToDir(Book book, Path dir)
     {
         Path subPath = BookFactory.hashPath(book.getName());
@@ -154,19 +159,26 @@ public final class BookFactory
         return save(book, targetPath);
     }
 
-    /** 将Book对象序列化后保存至指定目标位置
-    * @author  刘湘湘 
-    * @version 1.0.0<br>创建时间：2018年4月10日 下午5:00:04
-    * @since 1.0.0 
-    * @param book Book对象
-    * @param targetPath 目标位置
-    * @return 目标位置
-    */
+    /**
+     * 将Book对象序列化后保存至指定目标位置
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年4月10日 下午5:00:04
+     * @since 1.0.0
+     * @param book
+     *            Book对象
+     * @param targetPath
+     *            目标位置
+     * @return 目标位置
+     */
     public static Optional<Path> save(Book book, Path targetPath)
     {
         Path parentPath = targetPath.getParent();
-        List<JsonChapter> chapters = book.chapterStream().map(c -> (JsonChapter) c).collect(
-                Collectors.toList());
+        List<JsonChapter> chapters = book.chapterStream()
+                .filter(c -> Objects.nonNull(c))
+                .map(c -> (JsonChapter) c)
+                .collect(Collectors.toList());
         String text = JSON.toJSONString(chapters);
         List<String> list = new ArrayList<>();
         list.add(text);
