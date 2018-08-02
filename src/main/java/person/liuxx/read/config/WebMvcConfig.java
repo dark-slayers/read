@@ -23,7 +23,7 @@ public class WebMvcConfig extends WebMvcConfigurerAdapter
     public void addResourceHandlers(ResourceHandlerRegistry registry)
     {
         registry.addResourceHandler("/dev/**").addResourceLocations(
-                "file:E:/GitProject/read-page/dist/");
+                "file:D:/DK/GitProject/read-page/dist/");
         registry.addResourceHandler("/page/**").addResourceLocations("file:./page/");
         super.addResourceHandlers(registry);
     }
