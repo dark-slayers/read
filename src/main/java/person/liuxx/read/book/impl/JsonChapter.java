@@ -1,5 +1,6 @@
 package person.liuxx.read.book.impl;
 
+import lombok.Data;
 import person.liuxx.read.book.Chapter;
 
 /**
@@ -8,6 +9,7 @@ import person.liuxx.read.book.Chapter;
  *          创建时间：2018年4月8日 上午11:13:23
  * @since 1.0.0
  */
+@Data
 public class JsonChapter implements Chapter
 {
     private String titleName;
@@ -17,37 +19,5 @@ public class JsonChapter implements Chapter
     {
         this.titleName = titleName;
         this.content = content;
-    }
-
-    public JsonChapter()
-    {
-    }
-
-    @Override
-    public String getTitleName()
-    {
-        return titleName;
-    }
-
-    @Override
-    public String getContent()
-    {
-        return content;
-    }
-
-    public void setTitleName(String titleName)
-    {
-        this.titleName = titleName;
-    }
-
-    public void setContent(String content)
-    {
-        this.content = content;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "BaseChapter [titleName=" + titleName + ", content=" + content + "]";
     }
 }

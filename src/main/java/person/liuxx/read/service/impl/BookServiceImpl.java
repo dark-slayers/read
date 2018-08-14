@@ -69,7 +69,7 @@ public class BookServiceImpl implements BookService
                     .map(Paths::get)
                     .map(p -> p.getParent())
                     .map(p -> p.resolve(b.getName() + ".txt"))
-                    .orElseThrow(() ->
+                    .<SaveException>orElseThrow(() ->
                     {
                         throw new SaveException("获取文本文件生成路径失败！");
                     });

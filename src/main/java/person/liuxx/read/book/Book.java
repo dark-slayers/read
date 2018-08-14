@@ -105,7 +105,7 @@ public interface Book
      * 
      * @return 修改后的Book对象
      */
-    Book removeChapter(int index);
+    void removeChapter(int index);
 
     /**
      * 创建文本文件，将创建的文本文件生成一个资源响应

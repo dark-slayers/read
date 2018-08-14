@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.book.impl.JsonChapter;
 import person.liuxx.read.page.StoryPage;
-import person.liuxx.read.page.TitlePage;
+import person.liuxx.read.page.LocalTitlePage;
 import person.liuxx.read.service.BookParseService;
 import person.liuxx.util.file.DirUtil;
 import person.liuxx.util.file.FileUtil;
@@ -33,18 +34,17 @@ public class BookParseServiceImpl implements BookParseService
     public List<Chapter> parseDir(Path path)
     {
         log.info("解析路径：{}", path);
-        List<Chapter> result = new ArrayList<>();
         if (!DirUtil.exists(path))
         {
-            return result;
+            return new ArrayList<>();
         }
-        TitlePage titlePage = new TitlePage(path);
-        Map<String, String> map = titlePage.getMap();
-        Map<String, Chapter> chapterMap = getMap(map, path);
-        map.keySet().stream().forEach(key ->
-        {
-            result.add(chapterMap.get(key));
-        });
+        LocalTitlePage titlePage = new LocalTitlePage(path);
+        Map<String, String> textHrefMap = titlePage.getTextHrefMap();
+        Map<String, Chapter> chapterMap = getMap(textHrefMap, path);
+        List<Chapter> result = textHrefMap.keySet()
+                .stream()
+                .map(key -> chapterMap.get(key))
+                .collect(Collectors.toList());
         return result;
     }
 

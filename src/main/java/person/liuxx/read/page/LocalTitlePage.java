@@ -21,18 +21,18 @@ import person.liuxx.util.base.StringUtil;
  *          创建时间：2017年7月28日 下午3:08:33
  * @since 1.0.0
  */
-public class TitlePage
+public class LocalTitlePage
 {
     private Logger log = LogManager.getLogger();
     private final WebPage webPage;
-    Map<String, String> titleList;
+    private Map<String, String> textHrefMap;
 
-    public TitlePage(Path path)
+    public LocalTitlePage(Path path)
     {
         Path listPath = path.resolve("List.htm");
         log.info("获取本地书籍的目录页：{}", listPath);
         this.webPage = new WebPage(listPath);
-        titleList = new LinkedHashMap<>();
+        textHrefMap = new LinkedHashMap<>();
         Document doc = Jsoup.parse(webPage.getSource());
         Element content = doc.getElementById("t_body");
         Elements links = content.getElementsByTag("a");
@@ -40,13 +40,22 @@ public class TitlePage
         {
             String linkText = formatTitle(link.text());
             String linkHref = link.attr("href");
-            titleList.put(linkText, linkHref);
+            textHrefMap.put(linkText, linkHref);
         }
     }
 
-    public Map<String, String> getMap()
+    /**
+     * 目录文字和链接的对应map,文字为章节目录，map的key有序
+     * 
+     * @author 刘湘湘
+     * @version 1.0.0<br>
+     *          创建时间：2018年8月14日 下午8:38:28
+     * @since 1.0.0
+     * @return
+     */
+    public Map<String, String> getTextHrefMap()
     {
-        return titleList;
+        return textHrefMap;
     }
 
     private String formatTitle(String title)

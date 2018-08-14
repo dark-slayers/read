@@ -86,10 +86,9 @@ public class JsonBook implements Book
     }
 
     @Override
-    public Book removeChapter(int index)
+    public void removeChapter(int index)
     {
         chapters.remove(index);
-        return this;
     }
 
     @Override
@@ -103,17 +102,20 @@ public class JsonBook implements Book
                     .collect(Collectors.toList());
             Files.write(path, lines);
             Resource resource = new UrlResource(path.toUri());
-            return Optional.of(resource).filter(r -> r.exists() || r.isReadable()).map(r ->
-            {
-                String contentDisposition = "attachment; filename=\"" + getName() + ".txt\"";
-                return ResponseEntity.ok()
-                        .header(HttpHeaders.CONTENT_DISPOSITION, reCode(contentDisposition))
-                        .body(r);
-            });
+            return Optional.of(resource).filter(r -> r.exists() || r.isReadable()).map(
+                    r -> resourceToEntity(r));
         } catch (IOException e)
         {
             throw new SaveException("生成书籍TXT文件失败!", e);
         }
+    }
+
+    private ResponseEntity<Resource> resourceToEntity(Resource r)
+    {
+        String contentDisposition = "attachment; filename=\"" + getName() + ".txt\"";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, reCode(contentDisposition))
+                .body(r);
     }
 
     private String reCode(String contentDisposition)
