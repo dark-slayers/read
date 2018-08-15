@@ -2,9 +2,14 @@ package person.liuxx.read.service.impl;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -13,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import person.liuxx.read.book.Chapter;
 import person.liuxx.read.book.impl.JsonChapter;
+import person.liuxx.read.exception.BookParseException;
 import person.liuxx.read.page.StoryPage;
 import person.liuxx.read.page.LocalTitlePage;
 import person.liuxx.read.service.BookParseService;
@@ -51,28 +57,37 @@ public class BookParseServiceImpl implements BookParseService
     private Map<String, Chapter> getMap(final Map<String, String> map, final Path path)
     {
         Map<String, Chapter> result = new ConcurrentHashMap<>();
-        map.keySet().stream().parallel().forEach(key ->
+        map.keySet().stream().filter(filter()).parallel().forEach(key ->
         {
-            log.info("获取章节名称：{}", key);
             String linkHref = map.get(key);
-            log.info("章节《{}》对应的文件路径：{}", key, linkHref);
-            Path p = path.resolve(linkHref);
-            log.info("解析链接指向的文件：{}", p);
-            if (FileUtil.existsFile(p))
-            {
-                if (p.toFile().length() < 100)
-                {
-                    log.error("文件<{}>为空！", p);
-                } else
-                {
-                    StoryPage page = new StoryPage(p);
-                    result.put(key, new JsonChapter(key, page.getStory()));
-                }
-            } else
-            {
-                log.error("文件<{}>不存在！", p);
-            }
+            Path pa = path.resolve(linkHref);
+            String message = "章节解析异常，章节名称:" + key + "，章节路径:" + pa;
+            String story = Optional.ofNullable(pa)
+                    .filter(FileUtil::existsFile)
+                    .filter(p -> p.toFile().length() > 100)
+                    .map(StoryPage::new)
+                    .map(s -> s.getStory())
+                    .<BookParseException> orElseThrow(() ->
+                    {
+                        throw new BookParseException(message);
+                    });
+            result.put(key, new JsonChapter(key, story));
         });
         return result;
+    }
+
+    private Predicate<String> filter()
+    {
+        String[] array =
+        { "分卷阅读" };
+        Set<String> set = new HashSet<>(Arrays.asList(array));
+        return new Predicate<String>()
+        {
+            @Override
+            public boolean test(String t)
+            {
+                return !set.contains(t.split("_")[0]);
+            }
+        };
     }
 }

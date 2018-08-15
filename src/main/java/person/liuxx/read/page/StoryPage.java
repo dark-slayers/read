@@ -1,10 +1,10 @@
 package person.liuxx.read.page;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 /**
  * @author 刘湘湘
@@ -20,9 +20,19 @@ public class StoryPage extends WebPage
     public StoryPage(Path path)
     {
         super(path);
-        Document doc = Jsoup.parse(changeHtmlNewline(getSource()));
-        Element content = doc.getElementById("content");
-        story = content.text().replaceAll(NEWLINE, "\n");
+        String htmlText = changeHtmlNewline(getSource());
+        int startIndex = htmlText.indexOf("<!--BookContent Start-->");
+        int endIndex = htmlText.indexOf("<!--BookContent End-->");
+        String defalutText = "";
+        if (startIndex >= 0 && endIndex >= 0)
+        {
+            defalutText = htmlText.substring(startIndex, endIndex).replaceAll(NEWLINE, "\n");
+        }
+        Document doc = Jsoup.parse(htmlText);
+        Optional<String> storyOptional = Optional.ofNullable(doc)
+                .map(d -> d.getElementById("content"))
+                .map(c -> c.text());
+        story = storyOptional.map(c -> c.replaceAll(NEWLINE, "\n")).orElse(defalutText);
     }
 
     public String getStory()

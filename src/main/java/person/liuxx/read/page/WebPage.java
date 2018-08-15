@@ -29,6 +29,8 @@ public class WebPage
     private Logger log = LogManager.getLogger();
     private final Charset charset;
     private final String source;
+    private final Set<String> endCharSet = new HashSet<>(Arrays.asList(new String[]
+    { "'", "\"", " ", "/", ">", }));
 
     public WebPage(Path path)
     {
@@ -39,7 +41,7 @@ public class WebPage
             InputStream in = Files.newInputStream(path);
             html = IOUtils.toString(in);
             c = getCharset(html);
-            log.info("设置编码为 : {}", c);
+            log.info("{}设置编码为 : {}", path, c);
             in = Files.newInputStream(path);
             html = IOUtils.toString(in, c.toString());
         } catch (IOException e)
@@ -67,16 +69,12 @@ public class WebPage
                 {
                     searchCharset = searchCharset.substring(1);
                 }
-                String endString = Arrays.stream(searchCharset.split("")).filter(c ->
-                {
-                    String[] array =
-                    { "'", "\"", " ", "/", ">", };
-                    Set<String> set = new HashSet<>(Arrays.asList(array));
-                    return set.contains(c);
-                }).findFirst().get();
+                String endString = Arrays.stream(searchCharset.split(""))
+                        .filter(c -> endCharSet.contains(c))
+                        .findFirst()
+                        .get();
                 int endIndex = searchCharset.indexOf(endString);
                 searchCharset = searchCharset.substring(0, endIndex);
-                log.info("从页面中获取的编码格式：{}", searchCharset);
                 result = Charset.forName(searchCharset);
             }
         }
