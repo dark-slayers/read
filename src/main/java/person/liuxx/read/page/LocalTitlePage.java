@@ -36,11 +36,13 @@ public class LocalTitlePage
         Document doc = Jsoup.parse(webPage.getSource());
         Element content = doc.getElementById("t_body");
         Elements links = content.getElementsByTag("a");
+        int index = 1;
         for (Element link : links)
         {
-            String linkText = formatTitle(link.text());
+            String linkText = formatTitle(link.text(), index);
             String linkHref = link.attr("href");
             textHrefMap.put(linkText, linkHref);
+            index++;
         }
     }
 
@@ -58,10 +60,10 @@ public class LocalTitlePage
         return textHrefMap;
     }
 
-    private String formatTitle(String title)
+    private String formatTitle(String title, int index)
     {
         String result = Stream.of(title.split("")).filter(t -> !StringUtil.isBlank(t)).collect(
                 Collectors.joining());
-        return result;
+        return result + "_" + index;
     }
 }

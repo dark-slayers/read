@@ -17,7 +17,7 @@ public class JsonChapter implements Chapter
 
     public JsonChapter(String titleName, String content)
     {
-        this.titleName = titleName;
+        this.titleName = titleName.split("_")[0];
         this.content = content;
     }
 }
