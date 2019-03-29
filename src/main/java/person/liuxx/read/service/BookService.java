@@ -50,4 +50,13 @@ public interface BookService
      * @return 如果解析成功，返回存入数据库的书籍信息，该信息中包含id和书籍的文件路径
      */
     Optional<BookDO> parseAndSave(BookDTO book);
+
+    /**
+     * 获取全部的书籍列表
+     * 
+     * @author 刘湘湘
+     * @since 2019年3月29日 下午1:25:24
+     * @return 书籍列表,list
+     */
+    List<BookDO> listBooks();
 }

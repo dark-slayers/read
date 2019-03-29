@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import person.liuxx.read.book.BookStorageType;
+import person.liuxx.read.book.BookStorageTypeEnum;
 import person.liuxx.read.dto.BookDTO;
 import person.liuxx.read.service.impl.BookServiceImpl;
 
@@ -34,7 +34,7 @@ public class RunTest
         BookDTO b1=new BookDTO();
         b1.setName("Test Book 1");
         b1.setPath("F:\\Book\\000001");
-        b1.setType(BookStorageType.DIR);
+        b1.setType(BookStorageTypeEnum.DIR);
         bookService.parseAndSave(b1);
 //        BookDO b = new BookDO();
 //        b.setPath("F:/Book/Storage/F/C/8/Test Book 1.json");

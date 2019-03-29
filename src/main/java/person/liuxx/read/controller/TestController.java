@@ -1,10 +1,18 @@
 package person.liuxx.read.controller;
 
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import person.liuxx.read.service.impl.BookServiceImpl;
+import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.service.BookService;
+import person.liuxx.util.file.FileUtil;
 import springfox.documentation.annotations.ApiIgnore;
 
 /**
@@ -18,14 +26,24 @@ import springfox.documentation.annotations.ApiIgnore;
 public class TestController
 {
     @Autowired
-    BookServiceImpl bookService;
+    private BookService bookService;
+    private Logger log = LoggerFactory.getLogger(TestController.class);
 
-    @RequestMapping("/test")
-    public String greeting()
+    @RequestMapping("/test/db")
+    public List<String> greeting()
     {
-//        StorageBook book = BookFactory.parseDir(Paths.get("F:/Book/000006"), "123");
-        return "Test Over !\n" ;
-//        + book.getTitles();
+        log.info("test db !");
+        List<String> result = new ArrayList<>();
+        List<BookDO> bookList = bookService.listBooks();
+        for (BookDO b : bookList)
+        {
+            String info = b.getName();
+            if (!FileUtil.existsFile(Paths.get(b.getPath())))
+            {
+                info = info + ":文件不存在!";
+                result.add(info);
+            }
+        }
+        return result;
     }
-
 }

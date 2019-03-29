@@ -40,7 +40,7 @@ public class BookParseServiceImpl implements BookParseService
     public List<Chapter> parseDir(Path path)
     {
         log.info("解析路径：{}", path);
-        if (!DirUtil.exists(path))
+        if (!DirUtil.existsDir(path))
         {
             return new ArrayList<>();
         }

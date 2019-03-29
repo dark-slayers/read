@@ -69,7 +69,7 @@ public class BookServiceImpl implements BookService
                     .map(Paths::get)
                     .map(p -> p.getParent())
                     .map(p -> p.resolve(b.getName() + ".txt"))
-                    .<SaveException>orElseThrow(() ->
+                    .<SaveException> orElseThrow(() ->
                     {
                         throw new SaveException("获取文本文件生成路径失败！");
                     });
@@ -127,5 +127,11 @@ public class BookServiceImpl implements BookService
             }
         }
         return result;
+    }
+
+    @Override
+    public List<BookDO> listBooks()
+    {
+        return bookDao.findAll();
     }
 }

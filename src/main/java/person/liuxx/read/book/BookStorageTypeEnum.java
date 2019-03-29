@@ -8,7 +8,7 @@ package person.liuxx.read.book;
  *          创建时间：2017年8月25日 下午1:57:43
  * @since 1.0.0
  */
-public enum BookStorageType
+public enum BookStorageTypeEnum
 {
     TXT_FILE, HTML_FILE, TXT_FILES, HTML_FILES, DIR;
 }

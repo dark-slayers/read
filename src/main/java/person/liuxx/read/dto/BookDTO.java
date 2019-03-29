@@ -1,6 +1,6 @@
 package person.liuxx.read.dto;
 
-import person.liuxx.read.book.BookStorageType;
+import person.liuxx.read.book.BookStorageTypeEnum;
 
 /**
  * 请求服务器加载本地资源对象时，向服务器发出的参数对象，对象包含了创建书籍有关信息
@@ -14,7 +14,7 @@ public class BookDTO
 {
     private String name;
     private String path;
-    private BookStorageType type;
+    private BookStorageTypeEnum type;
 
     public String getName()
     {
@@ -36,12 +36,12 @@ public class BookDTO
         this.path = path;
     }
 
-    public BookStorageType getType()
+    public BookStorageTypeEnum getType()
     {
         return type;
     }
 
-    public void setType(BookStorageType type)
+    public void setType(BookStorageTypeEnum type)
     {
         this.type = type;
     }
