@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import person.liuxx.read.book.Book;
 import person.liuxx.read.book.BookFactory;
-import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.entity.BookDO;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.file.FileUtil;
 import springfox.documentation.annotations.ApiIgnore;

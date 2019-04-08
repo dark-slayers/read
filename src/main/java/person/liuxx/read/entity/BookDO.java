@@ -1,4 +1,4 @@
-package person.liuxx.read.domain;
+package person.liuxx.read.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;

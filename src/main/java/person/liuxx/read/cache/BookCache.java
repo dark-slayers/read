@@ -16,7 +16,7 @@ import com.google.common.cache.LoadingCache;
 import person.liuxx.read.book.Book;
 import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.dao.BookRepository;
-import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.entity.BookDO;
 
 /**
  * @author 刘湘湘

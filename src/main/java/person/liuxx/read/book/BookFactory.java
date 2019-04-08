@@ -23,7 +23,7 @@ import com.alibaba.fastjson.TypeReference;
 
 import person.liuxx.read.book.impl.JsonBook;
 import person.liuxx.read.book.impl.JsonChapter;
-import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.entity.BookDO;
 import person.liuxx.util.base.StringUtil;
 import person.liuxx.util.log.LogUtil;
 import person.liuxx.util.service.exception.SaveException;

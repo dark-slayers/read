@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import person.liuxx.read.domain.BookDO;
+import person.liuxx.read.entity.BookDO;
 
 /**
  * @author 刘湘湘
