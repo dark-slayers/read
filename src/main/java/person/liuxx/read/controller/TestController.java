@@ -3,6 +3,7 @@ package person.liuxx.read.controller;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import person.liuxx.read.book.Book;
+import person.liuxx.read.book.BookFactory;
 import person.liuxx.read.domain.BookDO;
 import person.liuxx.read.service.BookService;
 import person.liuxx.util.file.FileUtil;
@@ -42,6 +45,14 @@ public class TestController
             {
                 info = info + ":文件不存在!";
                 result.add(info);
+            } else
+            {
+                Optional<Book> loadBook = BookFactory.load(b);
+                if (!loadBook.isPresent())
+                {
+                    info = info + ":文件解析失败!";
+                    result.add(info);
+                }
             }
         }
         return result;
