@@ -24,8 +24,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-
 import person.liuxx.read.service.impl.BookParseServiceImpl;
 import person.liuxx.util.log.LogUtil;
 
@@ -40,7 +38,8 @@ public class GetWebPage
     private static Logger log = LoggerFactory.getLogger(BookParseServiceImpl.class);
     private static String root = "https://www.haxds.com";
     private static final long TIME_OUT = 15;
-    public static void main(String[] args)
+
+    public static void m()
     {
         String url = "https://www.haxds.com/files/article/html/37/37802/index.html";
         Optional<String> body = simpleGet(url);
@@ -48,7 +47,7 @@ public class GetWebPage
         body.ifPresent(s ->
         {
             Document doc = Jsoup.parse(s);
-            String title=doc.getElementsByTag("title").first().text();
+            String title = doc.getElementsByTag("title").first().text();
             Elements dls = doc.getElementsByClass("chapterlist");
             Element dl = dls.first();
             Elements as = dl.getElementsByTag("a");
@@ -59,14 +58,13 @@ public class GetWebPage
             }
             try
             {
-                Files.write(Paths.get("H:/b/"+title+".txt"), lines);
+                Files.write(Paths.get("H:/b/" + title + ".txt"), lines);
             } catch (Exception e)
             {
                 // TODO 自动生成的 catch 块
                 e.printStackTrace();
             }
         });
-        
     }
 
     static String aToText(Element a)
